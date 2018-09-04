@@ -1,22 +1,24 @@
 package solution;
 
-enum Direction {
-    up,
-    down,
-    left,
-    right
-}
-
-
 public class State {
     public MoveableBox goalBox;
 //    public MoveableBox[] goalBoxes;
 //    public MoveableBox[] movingObstacles;
 
+    /**
+     * New state with a moveable box
+     * @param x box x
+     * @param y box y
+     * @param w box width
+     */
     public State(double x, double y, double w) {
         this(new MoveableBox(x, y, w));
     }
 
+    /**
+     * New state with a moveable box object
+     * @param goalBox the moveable box
+     */
     public State(MoveableBox goalBox) {
         this.goalBox = goalBox;
     }
@@ -28,8 +30,7 @@ public class State {
      * @param staticObstacles the static obstacles
      * @return whether the action is valid
      */
-    public boolean action(Direction direction, double distance, Box[] staticObstacles) {
-//        State oldState = this.clone();
+    public boolean action(MoveDirection direction, double distance, Box[] staticObstacles) {
         MoveableBox oldBox = goalBox.clone();
 
         switch(direction) {
@@ -50,7 +51,7 @@ public class State {
                 break;
         }
 
-        Box union = goalBox.createUnion(oldBox);
+        Box union = goalBox.union(oldBox);
 
         for (Box box : staticObstacles) {
             if (union.intersects(box)) {
@@ -59,13 +60,13 @@ public class State {
         }
 
         return true;
-
     }
 
-
-
-
+    /**
+     * Clone the state
+     * @return the cloned state
+     */
     public State clone() {
-        return new State(goalBox);
+        return new State(goalBox.clone());
     }
 }
