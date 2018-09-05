@@ -2,6 +2,9 @@ package solution;
 
 import java.awt.geom.Rectangle2D;
 
+import static java.lang.Math.pow;
+import static java.lang.Math.sqrt;
+
 /**
  * An abstract box object. Is used for the static obstacles
  */
@@ -46,5 +49,13 @@ public class Box {
      */
     public Box union(Box otherBox) {
         return new Box(rect.createUnion(otherBox.rect));
+    }
+
+    public Rectangle2D getRect() {
+        return rect;
+    }
+
+    public double distanceTo(Box other) {
+        return sqrt(pow(other.getRect().getX() - rect.getX(), 2) + pow(other.getRect().getX() - rect.getY(), 2));
     }
 }

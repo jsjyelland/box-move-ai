@@ -1,5 +1,7 @@
 package solution;
 
+import java.awt.geom.Rectangle2D;
+
 public class State {
     public MoveableBox goalBox;
 //    public MoveableBox[] goalBoxes;
@@ -28,38 +30,44 @@ public class State {
      * @param direction direction the goalBox is moving
      * @param distance distance the goalBox is moving
      * @param staticObstacles the static obstacles
-     * @return whether the action is valid
+     * @return the new state
+     * @throws InvalidStateException if the new state is invalid
      */
-    public boolean action(MoveDirection direction, double distance, Box[] staticObstacles) {
-        MoveableBox oldBox = goalBox.clone();
+    public State action(MoveDirection direction, double distance, Box[] staticObstacles) throws InvalidStateException {
+        State newState = new State(goalBox.clone());
 
         switch(direction) {
             case up:
-                goalBox.move(0, distance);
+                newState.goalBox.move(0, distance);
                 break;
 
             case down:
-                goalBox.move(0, -distance);
+                newState.goalBox.move(0, -distance);
                 break;
 
             case left:
-                goalBox.move(-distance, 0);
+                newState.goalBox.move(-distance, 0);
                 break;
 
             case right:
-                goalBox.move(distance, 0);
+                newState.goalBox.move(distance, 0);
                 break;
         }
 
-        Box union = goalBox.union(oldBox);
+        Box union = goalBox.union(newState.goalBox);
+
+        Rectangle2D boundingRectangle = new Rectangle2D.Double(0, 0, 1, 1);
+        if (!boundingRectangle.contains(union.getRect())) {
+            throw new InvalidStateException();
+        }
 
         for (Box box : staticObstacles) {
             if (union.intersects(box)) {
-                return false;
+                throw new InvalidStateException();
             }
         }
 
-        return true;
+        return newState;
     }
 
     /**
