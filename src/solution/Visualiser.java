@@ -16,12 +16,12 @@ public class Visualiser extends JComponent {
     /**
      * The tree
      */
-    private TreeNode<State> tree;
+    private TreeNode<State, Action> tree;
 
     /**
      * The solution node (a leaf of the tree)
      */
-    private TreeNode<State> solutionNode;
+    private TreeNode<State, Action> solutionNode;
 
     /**
      * Transform to convert the [0, 1] * [0, 1] size of the workspace to the window size
@@ -45,7 +45,7 @@ public class Visualiser extends JComponent {
      * Paint a tree
      * @param tree the tree to paint
      */
-    public void paintTree(TreeNode<State> tree) {
+    public void paintTree(TreeNode<State, Action> tree) {
         this.tree = tree;
         repaint();
     }
@@ -88,24 +88,25 @@ public class Visualiser extends JComponent {
      * @param node the node to draw
      * @param g2 graphics to paint into
      */
-    private void paintTreeNode(TreeNode<State> node, Graphics2D g2) {
+    private void paintTreeNode(TreeNode<State, Action> node, Graphics2D g2) {
         paintTreeNode(node, g2, 0, 0, false);
     }
 
     /**
-     * Recursive tree node drawing function. Draws a node and any of its children. Also draws a line to its parent
+     * Recursive tree node drawing function. Draws a node and any of its children.
+     * Also draws a line to its parent
      * @param node the node to draw
      * @param g2 graphics to paint into
      * @param lastX parent node's x position
      * @param lastY parent node's y position
      * @param drawLine whether to draw a line to the parent or not
      */
-    private void paintTreeNode(TreeNode<State> node, Graphics2D g2, int lastX, int lastY, boolean drawLine) {
+    private void paintTreeNode(TreeNode<State, Action> node, Graphics2D g2, int lastX, int lastY, boolean drawLine) {
         g2.setColor(drawLine ? Color.BLACK : Color.BLUE);
         g2.setStroke(new BasicStroke(drawLine ? 1 : 5));
 
         // Transform the shape
-        Shape transformedShape = transform.createTransformedShape(node.getValue().goalBox.getRect());
+        Shape transformedShape = transform.createTransformedShape(node.getState().getMainBox().getRect());
 
         int nodeX = (int) transformedShape.getBounds().getX();
         int nodeY = (int) transformedShape.getBounds().getY();
@@ -125,11 +126,12 @@ public class Visualiser extends JComponent {
     }
 
     /**
-     * Draw a solution path. Helper function to begin recursion. Draws a line from the solution leaf node to the root
+     * Draw a solution path. Helper function to begin recursion.
+     * Draws a line from the solution leaf node to the root
      * @param node the solution leaf node
      * @param g2 graphics to paint into
      */
-    private void paintSolutionNode(TreeNode<State> node, Graphics2D g2) {
+    private void paintSolutionNode(TreeNode<State, Action> node, Graphics2D g2) {
         paintSolutionNode(node, g2, 0, 0, false);
     }
 
@@ -141,12 +143,12 @@ public class Visualiser extends JComponent {
      * @param lastY y position of the last node
      * @param drawLine whether to draw a line to the last node or not
      */
-    private void paintSolutionNode(TreeNode<State> node, Graphics2D g2, int lastX, int lastY, boolean drawLine) {
+    private void paintSolutionNode(TreeNode<State, Action> node, Graphics2D g2, int lastX, int lastY, boolean drawLine) {
         g2.setColor(Color.RED);
         g2.setStroke(new BasicStroke(5));
 
         // Transform the shape
-        Shape transformedShape = transform.createTransformedShape(node.getValue().goalBox.getRect());
+        Shape transformedShape = transform.createTransformedShape(node.getState().getMainBox().getRect());
 
         int nodeX = (int) transformedShape.getBounds().getX();
         int nodeY = (int) transformedShape.getBounds().getY();
@@ -165,7 +167,11 @@ public class Visualiser extends JComponent {
         }
     }
 
-    public void paintSolution(TreeNode<State> solutionNode) {
+    /**
+     * Draw a solution to the root of the tree.
+     * @param solutionNode the leaf node to start from
+     */
+    public void paintSolution(TreeNode<State, Action> solutionNode) {
         this.solutionNode = solutionNode;
         repaint();
     }

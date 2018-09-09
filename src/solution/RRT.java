@@ -15,19 +15,14 @@ public class RRT {
     private static double MAX_DISTANCE = 0.5;
 
     /**
-     * List of static obstacles
+     * The goal box
      */
-    private Box[] staticObstacles;
+    private MoveableBox goalBox;
 
     /**
-     * The goal state
+     * The initial box
      */
-    private State goalState;
-
-    /**
-     * The initial state
-     */
-    private State initialState;
+    private MoveableBox initialBox;
 
     /**
      * Visualiser to visualise the tree
@@ -37,30 +32,30 @@ public class RRT {
     /**
      * The tree of states
      */
-    private TreeNode<State> tree;
+    private TreeNode<State, Action> tree;
 
     /**
      * List of all the nodes
      */
-    private ArrayList<TreeNode<State>> nodes;
+    private ArrayList<TreeNode<State, Action>> nodes;
 
     /**
      * Construct an RRT
      * @param staticObstacles the static obstacles
-     * @param goalState the goal state
-     * @param initialState the initial state
+     * @param initialBox the initial box
+     * @param goalBox the goal box
      */
-    public RRT(Box[] staticObstacles, State goalState, State initialState) {
-        this.staticObstacles = staticObstacles;
-        this.goalState = goalState;
-        this.initialState = initialState;
+    public RRT(Box[] staticObstacles, MoveableBox[] moveableObstacles, MoveableBox initialBox, MoveableBox goalBox)
+            throws InvalidStateException {
+        this.goalBox = goalBox;
+        this.initialBox = initialBox;
 
         // Create a visualiser for the tree
         visualiser = new Visualiser(staticObstacles);
         Window window = new Window(visualiser);
 
         // Make an initial tree
-        tree = new TreeNode<>(initialState);
+        tree = new TreeNode<>(new State(initialBox, staticObstacles, moveableObstacles), null);
 
         // List of all the nodes
         nodes = new ArrayList<>();
@@ -79,26 +74,34 @@ public class RRT {
                 double randY = random();
 
                 State newRandomState = new State(
-                        new MoveableBox(randX, randY, goalState.goalBox.getRect().getWidth()),
-                        staticObstacles);
+                        new MoveableBox(randX, randY, goalBox.getRect().getWidth()), null, null);
 
                 // Get the nearest node to the new one
-                TreeNode<State> node = nearestNode(newRandomState);
+                TreeNode<State, Action> node = nearestNode(newRandomState);
+
+                newRandomState.setStaticObstacles(node.getState().getStaticObstacles());
+                newRandomState.setMoveableObstacles(node.getState().getMoveableObstacles());
+
+                // Make sure this is valid
+                newRandomState.validate();
 
                 // Step towards the new random state up to MAX_DISTANCE
-                State newState = node.getValue().stepTowards(newRandomState, MAX_DISTANCE);
+                State newState = node.getState().stepTowards(newRandomState, MAX_DISTANCE);
 
                 // Make sure this is valid still
-                if (!newState.isValid(staticObstacles)) {
-                    throw new InvalidStateException();
-                }
+                newState.validate();
 
                 // Add the new state to the tree
-                TreeNode<State> newNode = connectNodeToState(node, newState);
+                TreeNode<State, Action> newNode = connectNodeToState(node, newState);
 
                 // Try connecting this new state to the goal
                 try {
-                    TreeNode<State> goalNode = connectNodeToState(newNode, goalState);
+                    TreeNode<State, Action> goalNode = connectNodeToState(newNode, new State(
+                            goalBox,
+                            newNode.getState().getStaticObstacles(),
+                            newNode.getState().getMoveableObstacles()
+                    ));
+
                     visualiser.paintSolution(goalNode);
                     visualiser.paintTree(tree);
 
@@ -131,12 +134,12 @@ public class RRT {
      * @param state the state to find the node nearest to
      * @return the nearest node
      */
-    private TreeNode<State> nearestNode(State state) {
-        TreeNode<State> bestNode = nodes.get(0);
-        double shortestDistance = state.distanceTo(bestNode.getValue());
+    private TreeNode<State, Action> nearestNode(State state) {
+        TreeNode<State, Action> bestNode = nodes.get(0);
+        double shortestDistance = state.distanceTo(bestNode.getState());
 
-        for (TreeNode<State> node : nodes) {
-            double distance = node.getValue().distanceTo(state);
+        for (TreeNode<State, Action> node : nodes) {
+            double distance = node.getState().distanceTo(state);
 
             if (distance < shortestDistance) {
                 shortestDistance = distance;
@@ -155,11 +158,11 @@ public class RRT {
      * @param state the child state
      * @throws InvalidStateException if there is no connection
      */
-    private TreeNode<State> connectNodeToState(TreeNode<State> node, State state) throws InvalidStateException {
-        double nodeX = node.getValue().goalBox.getRect().getX();
-        double nodeY = node.getValue().goalBox.getRect().getY();
-        double stateX = state.goalBox.getRect().getX();
-        double stateY = state.goalBox.getRect().getY();
+    private TreeNode<State, Action> connectNodeToState(TreeNode<State, Action> node, State state) throws InvalidStateException {
+        double nodeX = node.getState().getMainBox().getRect().getX();
+        double nodeY = node.getState().getMainBox().getRect().getY();
+        double stateX = state.getMainBox().getRect().getX();
+        double stateY = state.getMainBox().getRect().getY();
 
         double dx = stateX - nodeX;
         double dy = stateY - nodeY;
@@ -170,9 +173,9 @@ public class RRT {
 
                 // Check if the action is valid. Will throw an
                 // InvalidStateException if not.
-                node.getValue().action(dx, dy, staticObstacles);
+                node.getState().action(dx, dy, node.getState().getStaticObstacles());
 
-                TreeNode<State> newNode = new TreeNode<>(state);
+                TreeNode<State, Action> newNode = new TreeNode<>(state, null);
                 addChildNode(node, newNode);
 
                 return newNode;
@@ -183,15 +186,19 @@ public class RRT {
 
                 try {
                     // First attempt. Corner node with (stateX, nodeY).
-                    TreeNode<State> newNode = new TreeNode<>(
-                            new State(stateX, nodeY, state.goalBox.getRect().getWidth()));
+                    TreeNode<State, Action> newNode = new TreeNode<>(
+                            new State(
+                                    new MoveableBox(stateX, nodeY, state.getMainBox().getRect().getWidth()),
+                                    node.getState().getStaticObstacles(),
+                                    node.getState().getMoveableObstacles()
+                            ), null);
 
                     // Check if the line to this corner is valid
-                    node.getValue().action(dx, 0, staticObstacles);
+                    node.getState().action(dx, 0, node.getState().getStaticObstacles());
 
                     // Now connect this corner node to the state.
                     // Will throw an InvalidStateException if it fails.
-                    TreeNode<State> endNode = connectNodeToState(newNode, state);
+                    TreeNode<State, Action> endNode = connectNodeToState(newNode, state);
 
                     // Add the corner node as a child of the parent node
                     addChildNode(node, newNode);
@@ -199,16 +206,20 @@ public class RRT {
                     return endNode;
                 } catch (InvalidStateException e) {
                     // Second attempt. Corner node with (nodeX, stateY).
-                    TreeNode<State> newNode = new TreeNode<>(
-                            new State(nodeX, stateY, state.goalBox.getRect().getWidth()));
+                    TreeNode<State, Action> newNode = new TreeNode<>(
+                            new State(
+                                    new MoveableBox(nodeX, stateY, state.getMainBox().getRect().getWidth()),
+                                    node.getState().getStaticObstacles(),
+                                    node.getState().getMoveableObstacles()
+                            ), null);
 
                     // Check if the line to this corner is valid
-                    node.getValue().action(0, dy, staticObstacles);
+                    node.getState().action(0, dy, node.getState().getStaticObstacles());
 
                     // Now connect this corner node to the state.
                     // Will throw an InvalidStateException if it fails.
                     // If this fails, the function will throw
-                    TreeNode<State> endNode = connectNodeToState(newNode, state);
+                    TreeNode<State, Action> endNode = connectNodeToState(newNode, state);
 
                     // Add the corner node as a child of the parent node
                     addChildNode(node, newNode);
@@ -227,7 +238,7 @@ public class RRT {
      * @param parent the parent node
      * @param child the child node
      */
-    private void addChildNode(TreeNode<State> parent, TreeNode<State> child) {
+    private void addChildNode(TreeNode<State, Action> parent, TreeNode<State, Action> child) {
         parent.addChild(child);
         nodes.add(child);
     }

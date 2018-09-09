@@ -3,32 +3,40 @@ package solution;
 import java.util.ArrayList;
 
 /**
- * A node in a tree. Holds a value
- * @param <T> The class of the value object the tree node holds
+ * A node in a tree. Holds an action and a state
+ * @param <T> The class of the state object the tree node holds
+ * @param <U> The class of the action objcet the tree node holds
  */
-public class TreeNode<T> {
+public class TreeNode<T, U> {
     /**
      * List of children connected to this node
      */
-    private ArrayList<TreeNode<T>> children;
+    private ArrayList<TreeNode<T, U>> children;
 
     /**
      * The parent in the tree
      */
-    private TreeNode<T> parent;
+    private TreeNode<T, U> parent;
 
     /**
-     * The value held by the node
+     * The state held by the node
      */
-    private T value;
+    private T state;
 
     /**
-     * Construct a tree with a value
-     * @param value the value to hold
+     * The action held by the node
      */
-    TreeNode(T value) {
+    private U action;
+
+    /**
+     * Construct a tree with a state and an action
+     * @param state the state to hold
+     * @param action the action to hold
+     */
+    TreeNode(T state, U action) {
         children = new ArrayList<>();
-        this.value = value;
+        this.state = state;
+        this.action = action;
         parent = null;
     }
 
@@ -36,7 +44,7 @@ public class TreeNode<T> {
      * Add a child to this node
      * @param t the node to add to this one
      */
-    void addChild(TreeNode<T> t) {
+    void addChild(TreeNode<T, U> t) {
         t.setParent(this);
         children.add(t);
     }
@@ -45,7 +53,7 @@ public class TreeNode<T> {
      * Set the parent of this node
      * @param parent the parent to set
      */
-    public void setParent(TreeNode<T> parent) {
+    public void setParent(TreeNode<T, U> parent) {
         this.parent = parent;
     }
 
@@ -53,16 +61,24 @@ public class TreeNode<T> {
      * Get the parent of this node
      * @return the parent of this node
      */
-    public TreeNode<T> getParent() {
+    public TreeNode<T, U> getParent() {
         return parent;
     }
 
     /**
-     * Get the value of this node
-     * @return the value
+     * Get the state of this node
+     * @return the state
      */
-    public T getValue() {
-        return value;
+    public T getState() {
+        return state;
+    }
+
+    /**
+     * Get the action of the node
+     * @return action
+     */
+    public U getAction() {
+        return action;
     }
 
     /**
@@ -85,10 +101,10 @@ public class TreeNode<T> {
      * @return the string representation of this node
      */
     private String print(String prefix, boolean isTail, boolean isStart) {
-        String out = (isStart ? "" : prefix + (isTail ? "└── " : "├── ")) + value + "\n";
+        String out = (isStart ? "" : prefix + (isTail ? "└── " : "├── ")) + state + "\n";
 
         int counter = 0;
-        for (TreeNode<T> child : children) {
+        for (TreeNode<T, U> child : children) {
             if (counter < children.size() - 1) {
                 out += child.print((isStart ? "" : prefix + (isTail ? "    " : "│   ")), false, false);
             } else {
@@ -105,7 +121,7 @@ public class TreeNode<T> {
      * Get the children of the node
      * @return a list of the children of the node
      */
-    public ArrayList<TreeNode<T>> getChildren() {
+    public ArrayList<TreeNode<T, U>> getChildren() {
         return children;
     }
 
@@ -124,7 +140,7 @@ public class TreeNode<T> {
      * Remove a child
      * @param child the child to remove
      */
-    public void removeChild(TreeNode<T> child) {
+    public void removeChild(TreeNode<T, U> child) {
         children.remove(child);
     }
 }
