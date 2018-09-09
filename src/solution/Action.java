@@ -7,9 +7,9 @@ import java.util.ArrayList;
  */
 public class Action {
     /**
-     * A path to move a box out of the way
+     * The solution node of a path to move a box out of the way
      */
-    ArrayList<State> moveableBoxPath;
+    TreeNode<State, Action> moveableBoxSolutionNode;
 
     /**
      * The box that needs moving out of the way

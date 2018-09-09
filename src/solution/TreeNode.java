@@ -5,7 +5,7 @@ import java.util.ArrayList;
 /**
  * A node in a tree. Holds an action and a state
  * @param <T> The class of the state object the tree node holds
- * @param <U> The class of the action objcet the tree node holds
+ * @param <U> The class of the action object the tree node holds
  */
 public class TreeNode<T, U> {
     /**

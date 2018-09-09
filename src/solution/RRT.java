@@ -1,8 +1,6 @@
 package solution;
 
 import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
-
 import static java.lang.Math.random;
 
 /**
@@ -25,11 +23,6 @@ public class RRT {
     private MoveableBox initialBox;
 
     /**
-     * Visualiser to visualise the tree
-     */
-    private Visualiser visualiser;
-
-    /**
      * The tree of states
      */
     private TreeNode<State, Action> tree;
@@ -38,6 +31,11 @@ public class RRT {
      * List of all the nodes
      */
     private ArrayList<TreeNode<State, Action>> nodes;
+
+    /**
+     * The solution node for this RRT.
+     */
+    private TreeNode<State, Action> solutionNode = null;
 
     /**
      * Construct an RRT
@@ -49,10 +47,6 @@ public class RRT {
             throws InvalidStateException {
         this.goalBox = goalBox;
         this.initialBox = initialBox;
-
-        // Create a visualiser for the tree
-        visualiser = new Visualiser(staticObstacles);
-        Window window = new Window(visualiser);
 
         // Make an initial tree
         tree = new TreeNode<>(new State(initialBox, staticObstacles, moveableObstacles), null);
@@ -102,8 +96,7 @@ public class RRT {
                             newNode.getState().getMoveableObstacles()
                     ));
 
-                    visualiser.paintSolution(goalNode);
-                    visualiser.paintTree(tree);
+                    solutionNode = goalNode;
 
                     return true;
                 } catch (InvalidStateException e) {
@@ -113,16 +106,6 @@ public class RRT {
             } catch (InvalidStateException e) {
                 // If this happens, try again. Means the new state is in collision
             }
-        }
-
-        // Visualise the new tree
-        visualiser.paintTree(tree);
-
-        // Wait because this is too fast to watch
-        try {
-            TimeUnit.MILLISECONDS.sleep(10);
-        } catch (InterruptedException e) {
-            System.out.println(e);
         }
 
         // No solution was found
@@ -241,5 +224,21 @@ public class RRT {
     private void addChildNode(TreeNode<State, Action> parent, TreeNode<State, Action> child) {
         parent.addChild(child);
         nodes.add(child);
+    }
+
+    /**
+     * Gets the solution node
+     * @return the solution node
+     */
+    public TreeNode<State, Action> getSolution() {
+        return solutionNode;
+    }
+
+    /**
+     * Gets the tree
+     * @return the tree
+     */
+    public TreeNode<State, Action> getTree() {
+        return tree;
     }
 }
