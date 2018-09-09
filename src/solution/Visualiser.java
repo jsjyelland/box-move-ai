@@ -102,6 +102,7 @@ public class Visualiser extends JComponent {
      */
     private void paintTreeNode(TreeNode<State> node, Graphics2D g2, int lastX, int lastY, boolean drawLine) {
         g2.setColor(Color.BLACK);
+        g2.setStroke(new BasicStroke(1));
 
         // Transform the shape
         Shape transformedShape = transform.createTransformedShape(node.getValue().goalBox.getRect());
@@ -142,6 +143,7 @@ public class Visualiser extends JComponent {
      */
     private void paintSolutionNode(TreeNode<State> node, Graphics2D g2, int lastX, int lastY, boolean drawLine) {
         g2.setColor(Color.RED);
+        g2.setStroke(new BasicStroke(5));
 
         // Transform the shape
         Shape transformedShape = transform.createTransformedShape(node.getValue().goalBox.getRect());
@@ -156,7 +158,7 @@ public class Visualiser extends JComponent {
 
         // Call this function on the parent
         if (node.getParent() != null) {
-            paintTreeNode(node.getParent(), g2, nodeX, nodeY, true);
+            paintSolutionNode(node.getParent(), g2, nodeX, nodeY, true);
         }
     }
 

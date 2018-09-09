@@ -56,6 +56,30 @@ public class Box {
     }
 
     public double distanceTo(Box other) {
-        return sqrt(pow(other.getRect().getX() - rect.getX(), 2) + pow(other.getRect().getX() - rect.getY(), 2));
+        return sqrt(pow(other.getRect().getX() - rect.getX(), 2) + pow(other.getRect().getY() - rect.getY(), 2));
+    }
+
+    /**
+     * Check if the box is valid given a list of static obstacles.
+     * The state is valid if the box doesn't collide with any of the
+     * static obstacles and is inside the workspace.
+     * @param staticObstacles list of static obstacles
+     * @return whether the box is valid or not
+     */
+    public boolean isValid(Box[] staticObstacles) {
+        // Check if the box is inside the workspace
+        Rectangle2D boundingRectangle = new Rectangle2D.Double(0, 0, 1, 1);
+        if (!boundingRectangle.contains(rect)) {
+            return false;
+        }
+
+        // Check if the box collides with any static obstacles
+        for (Box box : staticObstacles) {
+            if (intersects(box)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
