@@ -12,7 +12,7 @@ public class RRT {
     /**
      * Max distance a node can randomly expand doing RRT
      */
-    private static double MAX_DISTANCE = 0.1;
+    private static double MAX_DISTANCE = 0.5;
 
     /**
      * List of static obstacles

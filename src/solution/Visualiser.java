@@ -101,8 +101,8 @@ public class Visualiser extends JComponent {
      * @param drawLine whether to draw a line to the parent or not
      */
     private void paintTreeNode(TreeNode<State> node, Graphics2D g2, int lastX, int lastY, boolean drawLine) {
-        g2.setColor(Color.BLACK);
-        g2.setStroke(new BasicStroke(1));
+        g2.setColor(drawLine ? Color.BLACK : Color.BLUE);
+        g2.setStroke(new BasicStroke(drawLine ? 1 : 5));
 
         // Transform the shape
         Shape transformedShape = transform.createTransformedShape(node.getValue().goalBox.getRect());
@@ -111,7 +111,7 @@ public class Visualiser extends JComponent {
         int nodeY = (int) transformedShape.getBounds().getY();
 
         // Draw the point
-        g2.fillRect(nodeX, nodeY, 5, 5);
+        g2.draw(transformedShape);
 
         // Draw the line to the parent
         if (drawLine) {
@@ -150,6 +150,9 @@ public class Visualiser extends JComponent {
 
         int nodeX = (int) transformedShape.getBounds().getX();
         int nodeY = (int) transformedShape.getBounds().getY();
+
+        // Draw the goal node
+        g2.draw(transformedShape);
 
         // Draw a line to the last node
         if (drawLine) {
