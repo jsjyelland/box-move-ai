@@ -1,51 +1,40 @@
 package solution;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 import java.util.ArrayList;
 import static java.lang.Math.random;
 
 /**
- * A rapidly exploring random tree
+ * A rapidly exploring random tree interface
  */
-public class RRT {
-    /**
-     * Max distance a node can randomly expand doing RRT
-     */
-    private static double MAX_DISTANCE = 0.5;
-
-    /**
-     * The goal box
-     */
-    private MoveableBox goalBox;
-
-    /**
-     * The initial box
-     */
-    private MoveableBox initialBox;
-
+public abstract class AbstractRRT {
     /**
      * The tree of states
      */
-    private TreeNode<State, Action> tree;
+    protected TreeNode<State, Action> tree;
 
     /**
      * List of all the nodes
      */
-    private ArrayList<TreeNode<State, Action>> nodes;
+    protected ArrayList<TreeNode<State, Action>> nodes;
 
     /**
      * The solution node for this RRT.
      */
-    private TreeNode<State, Action> solutionNode = null;
+    protected TreeNode<State, Action> solutionNode = null;
+
+    /**
+     * The initial box
+     */
+    protected MoveableBox initialBox;
 
     /**
      * Construct an RRT
      * @param staticObstacles the static obstacles
      * @param initialBox the initial box
-     * @param goalBox the goal box
      */
-    public RRT(Box[] staticObstacles, MoveableBox[] moveableObstacles, MoveableBox initialBox, MoveableBox goalBox)
-            throws InvalidStateException {
-        this.goalBox = goalBox;
+    public AbstractRRT(Box[] staticObstacles, MoveableBox[] moveableObstacles, MoveableBox initialBox) throws InvalidStateException{
         this.initialBox = initialBox;
 
         // Make an initial tree
@@ -57,59 +46,11 @@ public class RRT {
     }
 
     /**
-     * Expand the tree one step
+     * Expand the tree one step. This function has to be implemented by the subclasses
      * @return if a solution is found or not
      */
     public boolean expand() {
-        // Sample a random node in free space
-        while (true) {
-            try {
-                double randX = random();
-                double randY = random();
-
-                State newRandomState = new State(
-                        new MoveableBox(randX, randY, goalBox.getRect().getWidth()), null, null);
-
-                // Get the nearest node to the new one
-                TreeNode<State, Action> node = nearestNode(newRandomState);
-
-                newRandomState.setStaticObstacles(node.getState().getStaticObstacles());
-                newRandomState.setMoveableObstacles(node.getState().getMoveableObstacles());
-
-                // Make sure this is valid
-                newRandomState.validate();
-
-                // Step towards the new random state up to MAX_DISTANCE
-                State newState = node.getState().stepTowards(newRandomState, MAX_DISTANCE);
-
-                // Make sure this is valid still
-                newState.validate();
-
-                // Add the new state to the tree
-                TreeNode<State, Action> newNode = connectNodeToState(node, newState);
-
-                // Try connecting this new state to the goal
-                try {
-                    TreeNode<State, Action> goalNode = connectNodeToState(newNode, new State(
-                            goalBox,
-                            newNode.getState().getStaticObstacles(),
-                            newNode.getState().getMoveableObstacles()
-                    ));
-
-                    solutionNode = goalNode;
-
-                    return true;
-                } catch (InvalidStateException e) {
-                    // Couldn't connect to the goal. Exit the loop
-                    break;
-                }
-            } catch (InvalidStateException e) {
-                // If this happens, try again. Means the new state is in collision
-            }
-        }
-
-        // No solution was found
-        return false;
+        throw new NotImplementedException();
     }
 
     /**
@@ -117,7 +58,7 @@ public class RRT {
      * @param state the state to find the node nearest to
      * @return the nearest node
      */
-    private TreeNode<State, Action> nearestNode(State state) {
+    protected TreeNode<State, Action> nearestNode(State state) {
         TreeNode<State, Action> bestNode = nodes.get(0);
         double shortestDistance = state.distanceTo(bestNode.getState());
 
@@ -141,7 +82,7 @@ public class RRT {
      * @param state the child state
      * @throws InvalidStateException if there is no connection
      */
-    private TreeNode<State, Action> connectNodeToState(TreeNode<State, Action> node, State state) throws InvalidStateException {
+    protected TreeNode<State, Action> connectNodeToState(TreeNode<State, Action> node, State state) throws InvalidStateException {
         double nodeX = node.getState().getMainBox().getRect().getX();
         double nodeY = node.getState().getMainBox().getRect().getY();
         double stateX = state.getMainBox().getRect().getX();
@@ -221,7 +162,7 @@ public class RRT {
      * @param parent the parent node
      * @param child the child node
      */
-    private void addChildNode(TreeNode<State, Action> parent, TreeNode<State, Action> child) {
+    protected void addChildNode(TreeNode<State, Action> parent, TreeNode<State, Action> child) {
         parent.addChild(child);
         nodes.add(child);
     }
