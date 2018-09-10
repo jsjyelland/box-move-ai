@@ -33,9 +33,12 @@ public class Window {
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(visualiser, BorderLayout.CENTER);
         frame.setLayout(new BorderLayout());
+
         panel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(10, 10, 10, 10),
-                BorderFactory.createEtchedBorder(EtchedBorder.LOWERED)));
+                BorderFactory.createEtchedBorder(EtchedBorder.LOWERED))
+        );
+
         frame.add(panel, BorderLayout.CENTER);
     }
 }

@@ -3,6 +3,7 @@ package solution;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
+import java.util.ArrayList;
 
 /**
  * A visualisation of the solution
@@ -11,7 +12,12 @@ public class Visualiser extends JComponent {
     /**
      * The static obstacles
      */
-    private Box[] staticObstacles;
+    private ArrayList<Box> staticObstacles;
+
+    /**
+     * The moveable obstacles
+     */
+    private ArrayList<MoveableBox> moveableObstacles;
 
     /**
      * The tree
@@ -30,12 +36,14 @@ public class Visualiser extends JComponent {
 
     /**
      * Create a visualiser with static obstacles
+     *
      * @param staticObstacles the static obstacles in the workspace
      */
-    public Visualiser(Box[] staticObstacles) {
+    public Visualiser(ArrayList<Box> staticObstacles, ArrayList<MoveableBox> moveableObstacles) {
         this.setBackground(Color.WHITE);
         this.setOpaque(true);
         this.staticObstacles = staticObstacles;
+        this.moveableObstacles = moveableObstacles;
         this.tree = null;
         this.solutionNode = null;
         repaint();
@@ -43,6 +51,7 @@ public class Visualiser extends JComponent {
 
     /**
      * Paint a tree
+     *
      * @param tree the tree to paint
      */
     public void paintTree(TreeNode<State, Action> tree) {
@@ -52,6 +61,7 @@ public class Visualiser extends JComponent {
 
     /**
      * Redraw the panel
+     *
      * @param graphics graphics component to draw in
      */
     @Override
@@ -72,6 +82,13 @@ public class Visualiser extends JComponent {
             g2.fill(shape);
         }
 
+        // Draw all the moveable obstacles
+        g2.setColor(Color.GREEN);
+        for (Box obstacle : moveableObstacles) {
+            Shape shape = transform.createTransformedShape(obstacle.getRect());
+            g2.fill(shape);
+        }
+
         // Draw the tree
         if (tree != null) {
             paintTreeNode(tree, g2);
@@ -85,6 +102,7 @@ public class Visualiser extends JComponent {
 
     /**
      * Draw a tree node. Helper function to begin recursion
+     *
      * @param node the node to draw
      * @param g2 graphics to paint into
      */
@@ -93,20 +111,24 @@ public class Visualiser extends JComponent {
     }
 
     /**
-     * Recursive tree node drawing function. Draws a node and any of its children.
-     * Also draws a line to its parent
+     * Recursive tree node drawing function. Draws a node and any of its children. Also draws a line
+     * to its parent
+     *
      * @param node the node to draw
      * @param g2 graphics to paint into
      * @param lastX parent node's x position
      * @param lastY parent node's y position
      * @param drawLine whether to draw a line to the parent or not
      */
-    private void paintTreeNode(TreeNode<State, Action> node, Graphics2D g2, int lastX, int lastY, boolean drawLine) {
+    private void paintTreeNode(TreeNode<State, Action> node, Graphics2D g2, int lastX, int lastY,
+            boolean drawLine) {
         g2.setColor(drawLine ? Color.BLACK : Color.BLUE);
         g2.setStroke(new BasicStroke(drawLine ? 1 : 5));
 
         // Transform the shape
-        Shape transformedShape = transform.createTransformedShape(node.getState().getMainBox().getRect());
+        Shape transformedShape = transform.createTransformedShape(
+                node.getState().getMainBox().getRect()
+        );
 
         int nodeX = (int) transformedShape.getBounds().getX();
         int nodeY = (int) transformedShape.getBounds().getY();
@@ -126,8 +148,9 @@ public class Visualiser extends JComponent {
     }
 
     /**
-     * Draw a solution path. Helper function to begin recursion.
-     * Draws a line from the solution leaf node to the root
+     * Draw a solution path. Helper function to begin recursion. Draws a line from the solution leaf
+     * node to the root
+     *
      * @param node the solution leaf node
      * @param g2 graphics to paint into
      */
@@ -137,18 +160,22 @@ public class Visualiser extends JComponent {
 
     /**
      * Recursive solution path drawing function. Draws a line from the current node to its parent
+     *
      * @param node current node to draw
      * @param g2 graphics to paint into
      * @param lastX x position of the last node
      * @param lastY y position of the last node
      * @param drawLine whether to draw a line to the last node or not
      */
-    private void paintSolutionNode(TreeNode<State, Action> node, Graphics2D g2, int lastX, int lastY, boolean drawLine) {
+    private void paintSolutionNode(TreeNode<State, Action> node, Graphics2D g2, int lastX,
+            int lastY, boolean drawLine) {
         g2.setColor(Color.RED);
         g2.setStroke(new BasicStroke(5));
 
         // Transform the shape
-        Shape transformedShape = transform.createTransformedShape(node.getState().getMainBox().getRect());
+        Shape transformedShape = transform.createTransformedShape(
+                node.getState().getMainBox().getRect()
+        );
 
         int nodeX = (int) transformedShape.getBounds().getX();
         int nodeY = (int) transformedShape.getBounds().getY();
@@ -169,6 +196,7 @@ public class Visualiser extends JComponent {
 
     /**
      * Draw a solution to the root of the tree.
+     *
      * @param solutionNode the leaf node to start from
      */
     public void paintSolution(TreeNode<State, Action> solutionNode) {

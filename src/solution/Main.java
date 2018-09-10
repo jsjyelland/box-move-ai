@@ -1,45 +1,51 @@
 package solution;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 public class Main {
     public static void main(String[] args) {
         // Create an RRT
-        try {
-            Box[] initialStaticObstacles = new Box[] {
-                    new Box(0.0, 0.0, 1, 0.1),
-                    new Box(0.2, 0.2, 0.9, 0.1),
-                    new Box(0.0, 0.4, 0.9, 0.1),
-                    new Box(0.2, 0.6, 0.9, 0.1),
-                    new Box(0.0, 0.8, 0.9, 0.1)
-            };
-            GoalBoxRRT rrt = new GoalBoxRRT(initialStaticObstacles, new MoveableBox[0],
-                    new MoveableBox(0.9, 0.125, 0.05),
-                    new MoveableBox(0.0, 0.9, 0.05));
+        ArrayList<Box> initialStaticObstacles = new ArrayList<>(Arrays.asList(
+                new Box(0.0, 0.0, 1, 0.1),
+                new Box(0.2, 0.2, 0.9, 0.1),
+                new Box(0.0, 0.4, 0.9, 0.1),
+                new Box(0.2, 0.6, 0.9, 0.1),
+                new Box(0.0, 0.8, 0.9, 0.1)
+        ));
 
-            // Create the visualizer
-            Visualiser visualiser = new Visualiser(initialStaticObstacles);
-            Window window = new Window(visualiser);
+        ArrayList<MoveableBox> initialMoveableObstacles = new ArrayList<>(Arrays.asList(
+                new MoveableBox(0.3, 0.3, 0.05)
+        ));
 
-            // Loop until a solution is found
-            while (true) {
-                boolean expanded = rrt.expand();
-                visualiser.paintTree(rrt.getTree());
-                if (expanded) {
-                    visualiser.paintSolution(rrt.getSolution());
-                    System.out.println("Solution found");
-                    break;
-                }
+        GoalBoxRRT rrt = new GoalBoxRRT(
+                initialStaticObstacles,
+                initialMoveableObstacles,
+                new MoveableBox(0.9, 0.125, 0.05),
+                new MoveableBox(0.0, 0.9, 0.05)
+        );
 
-                // Wait because this is too fast to watch
-                try {
-                    TimeUnit.MILLISECONDS.sleep(10);
-                } catch (InterruptedException e) {
-                    System.out.println(e);
-                }
+        // Create the visualizer
+        Visualiser visualiser = new Visualiser(initialStaticObstacles, initialMoveableObstacles);
+        Window window = new Window(visualiser);
+
+        // Loop until a solution is found
+        while (true) {
+            if (rrt.expand()) {
+                visualiser.paintSolution(rrt.getSolution());
+                System.out.println("Solution found");
+                break;
             }
-        } catch (InvalidStateException e) {
-            System.out.println(e);
+
+            visualiser.paintTree(rrt.getTree());
+
+            // Wait because this is too fast to watch
+            try {
+                TimeUnit.MILLISECONDS.sleep(10);
+            } catch (InterruptedException e) {
+                System.out.println(e);
+            }
         }
     }
 }

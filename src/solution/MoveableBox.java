@@ -7,8 +7,9 @@ import java.awt.geom.Rectangle2D;
  */
 public class MoveableBox extends Box {
     /**
-     * Construct a moveable box with rectangle parameters. Note that in the assignment spec,
-     * any moveable box is a square and so only requires a width.
+     * Construct a moveable box with rectangle parameters. Note that in the assignment spec, any
+     * moveable box is a square and so only requires a width.
+     *
      * @param x box x
      * @param y box y
      * @param w box w
@@ -19,7 +20,9 @@ public class MoveableBox extends Box {
 
     /**
      * Construct a moveable box with a rectangle object
+     *
      * @param rect the rectangle to use for the box.
+     *
      * @throws BoxSizeException if the rectangle is not a square (height == width)
      */
     public MoveableBox(Rectangle2D rect) throws BoxSizeException {
@@ -33,6 +36,7 @@ public class MoveableBox extends Box {
 
     /**
      * Move the box
+     *
      * @param dx change in x
      * @param dy change in y
      */
@@ -42,13 +46,15 @@ public class MoveableBox extends Box {
 
     /**
      * Clone a movable box
+     *
      * @return the cloned box
      */
     public MoveableBox clone() {
         try {
             return new MoveableBox((Rectangle2D.Double) rect.clone());
-        } catch (BoxSizeException e){
-            // This will not happen because the rect will be a square. If this object is valid, so will the clone
+        } catch (BoxSizeException e) {
+            // This will not happen because the rect will be a square.
+            // If this object is valid, so will the clone
             return new MoveableBox(0, 0, 0);
         }
     }
