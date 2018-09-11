@@ -7,6 +7,8 @@ import static java.lang.Math.round;
  * Helper functions for the assignment
  */
 public class Util {
+    public static final double TO_RADIANS = 0.01745329251994329576923690768489;
+
     /**
      * Helper function for random number between two bounds
      *
