@@ -79,6 +79,7 @@ public class State {
         for (MoveableBox moveableObstacle : moveableObstacles) {
             if (moveableObstacle.intersects(union)) {
                 moveableObstacleIntersections.add(moveableObstacle);
+                newState.removeMoveableObstacle(moveableObstacle);
             }
         }
 
@@ -90,9 +91,6 @@ public class State {
         // Add the new node to the current leaf.
         // This is so moving the boxes out of the way will work.
         currentLeaf.addChild(newNode);
-
-        // Move any moveable obstacles out of the way
-        newNode.getAction().moveBoxesOutOfPath(newNode);
 
         // Remove the node as a child of currentLeaf. Having newNode as a child of currentLeaf
         // may not be wanted.
@@ -129,7 +127,7 @@ public class State {
      * @return the cloned state
      */
     public State clone() {
-        return new State(mainBox.clone(), staticObstacles, moveableObstacles);
+        return new State(mainBox.clone(), new ArrayList<>(staticObstacles), new ArrayList<>(moveableObstacles));
     }
 
     /**

@@ -6,7 +6,7 @@ import java.util.ArrayList;
  * An RRT for moving a moveable obstacle
  */
 public class MoveableObstacleRRT extends RRT {
-    private TreeNode<State, Action> currentLeaf;
+    private ArrayList<TreeNode<State, Action>> solutionLeaves;
 
     private Visualiser visualiser;
 
@@ -15,13 +15,14 @@ public class MoveableObstacleRRT extends RRT {
      *
      * @param staticObstacles the static obstacles
      * @param initialBox the initial box
+     * @param solutionLeaves the leaf of the top level solution. This is the path to avoid
      */
     public MoveableObstacleRRT(ArrayList<Box> staticObstacles,
             ArrayList<MoveableBox> moveableObstacles, MoveableBox initialBox,
-            TreeNode<State, Action> currentLeaf) {
+            ArrayList<TreeNode<State, Action>> solutionLeaves) {
         super(staticObstacles, moveableObstacles, initialBox);
 
-        this.currentLeaf = currentLeaf;
+        this.solutionLeaves = solutionLeaves;
 
         visualiser = new Visualiser(staticObstacles, moveableObstacles);
         Window window = new Window(visualiser);
@@ -29,7 +30,7 @@ public class MoveableObstacleRRT extends RRT {
 
     /**
      * Check if a solution is valid. The box must be out of the way of the path given by
-     * currentLeaf.
+     * solutionLeaves.
      *
      * @param newestNode the newest node created by exploring
      *
@@ -40,22 +41,38 @@ public class MoveableObstacleRRT extends RRT {
         visualiser.paintTree(getTree());
 
         // Start at the current leaf
-        TreeNode<State, Action> currentNode = currentLeaf;
+        for(TreeNode<State, Action> solutionLeaf: solutionLeaves) {
+            TreeNode<State, Action> currentNode = solutionLeaf;
 
-        // Move up the tree to the root
-        while (currentNode.getParent() != null) {
-            TreeNode<State, Action> parent = currentNode.getParent();
+            // Move up the tree to the root
+            while (currentNode.getParent() != null) {
+                TreeNode<State, Action> parent = currentNode.getParent();
 
-            // Create a union representing the path from each node to its parent
-            Box union = parent.getState().getMainBox().union(currentNode.getState().getMainBox());
+                // Create a union representing the path from each node to its parent
+                Box union = parent.getState().getMainBox().union(currentNode.getState().getMainBox());
 
-            // Check if the solution intersects the path
-            if (newestNode.getState().getMainBox().intersects(union)) {
-                return false;
+                // Check if the solution intersects the path
+                if (newestNode.getState().getMainBox().intersects(union)) {
+                    return false;
+                }
+
+                currentNode = parent;
             }
-
-            currentNode = parent;
         }
+
+        solutionNode = newestNode;
+
+        solutionLeaves.add(0, solutionNode);
+
+        TreeNode<State, Action> currentNode = solutionNode;
+
+        while (currentNode.getParent() != null) {
+            // Move any moveable obstacles out of the way
+            currentNode.getAction().moveBoxesOutOfPath(solutionLeaves);
+            currentNode = currentNode.getParent();
+        }
+
+        visualiser.paintSolution(solutionNode);
 
         // No collisions
         return true;

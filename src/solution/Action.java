@@ -37,14 +37,16 @@ public class Action {
         this.boxesToMove = boxesToMove;
         this.dx = dx;
         this.dy = dy;
+
+        moveableBoxSolutionNodes = new ArrayList<>();
     }
 
     /**
      * Move moveable obstacles out of the way
      *
-     * @param currentLeaf the current leaf node of the tree.
+     * @param solutionNodes the solutions of the trees above
      */
-    public void moveBoxesOutOfPath(TreeNode<State, Action> currentLeaf) {
+    public void moveBoxesOutOfPath(ArrayList<TreeNode<State, Action>> solutionNodes) {
         // Make sure there are boxes to move
         if (boxesToMove == null || boxesToMove.size() == 0) {
             return;
@@ -52,15 +54,12 @@ public class Action {
 
         // Move each box out of the way
         for (MoveableBox box : boxesToMove) {
-            // Remove the moveable obstacle from the current state
-            currentLeaf.getState().getMoveableObstacles().remove(box);
-
             // Create an RRT to move the box out of the way
             MoveableObstacleRRT obstacleRRT = new MoveableObstacleRRT(
-                    currentLeaf.getState().getStaticObstacles(),
-                    currentLeaf.getState().getMoveableObstacles(),
+                    solutionNodes.get(0).getState().getStaticObstacles(),
+                    solutionNodes.get(0).getState().getMoveableObstacles(),
                     box,
-                    currentLeaf
+                    solutionNodes
             );
 
             // Solve the RRT
@@ -77,7 +76,7 @@ public class Action {
             Box newBox = new Box(solution.getState().getMainBox().getRect());
 
             // Make the moveable obstacle static
-            currentLeaf.getState().addStaticObstacle(newBox);
+            solutionNodes.get(solutionNodes.size() - 1).getState().addStaticObstacle(newBox);
         }
     }
 

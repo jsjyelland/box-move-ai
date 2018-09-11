@@ -1,6 +1,7 @@
 package solution;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * An RRT for moving a goal box
@@ -40,6 +41,13 @@ public class GoalBoxRRT extends RRT {
                     newestNode.getState().getStaticObstacles(),
                     newestNode.getState().getMoveableObstacles()
             ), true);
+
+            TreeNode<State, Action> currentNode = solutionNode;
+            while (currentNode.getParent() != null) {
+                // Move any moveable obstacles out of the way
+                currentNode.getAction().moveBoxesOutOfPath(new ArrayList<>(Arrays.asList(solutionNode)));
+                currentNode = currentNode.getParent();
+            }
 
             return true;
         } catch (InvalidStateException e) {
