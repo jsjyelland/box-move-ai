@@ -47,7 +47,7 @@ public class MoveableBoxState extends State {
      * @throws InvalidStateException if the new state is invalid, or if the move is in two
      * directions.
      */
-    public TreeNode<MoveableBoxState, Action> action(double dx, double dy)
+    public TreeNode<MoveableBoxState, MoveableBoxAction> action(double dx, double dy)
             throws InvalidStateException {
         // Make sure the action is only in one direction
         if (dx != 0 && dy != 0) {
@@ -69,7 +69,7 @@ public class MoveableBoxState extends State {
         }
 
         // Create and return a new node with this new state and an action
-        return new TreeNode<>(newState, new Action(union, dx, dy));
+        return new TreeNode<>(newState, new MoveableBoxAction(union, dx, dy));
     }
 
     /**
@@ -124,33 +124,35 @@ public class MoveableBoxState extends State {
      * @throws InvalidStateException if other is not a MoveableBoxState
      */
     @Override
-    public State stepTowards(State other, double delta) throws InvalidStateException {
-        if (other instanceof MoveableBoxState) {
-            MoveableBoxState moveableBoxState = (MoveableBoxState) other;
-
-            if (distanceTo(other) <= delta) {
-                return other;
-            }
-
-            // The angle to move
-            double theta = atan2(moveableBoxState.mainBox.getRect().getY() - mainBox.getRect().getY(),
-                    moveableBoxState.mainBox.getRect().getX() - mainBox.getRect().getX()
-            );
-
-            MoveableBoxState newState = clone();
-
-            // Move along the line with direction theta by distance delta
-            MoveableBox newMainBox = new MoveableBox(mainBox.getRect().getX() + delta * cos(theta),
-                    mainBox.getRect().getY() + delta * sin(theta),
-                    mainBox.getRect().getWidth()
-            );
-
-            newState.setMainBox(newMainBox);
-
-            return newState;
-        } else {
+    public MoveableBoxState stepTowards(State other, double delta) throws InvalidStateException {
+        // Make sure other is a MoveableBoxState
+        if (!(other instanceof MoveableBoxState)) {
             throw new InvalidStateException();
         }
+
+        MoveableBoxState moveableBoxState = (MoveableBoxState) other;
+
+        // No need to do anything
+        if (distanceTo(other) <= delta) {
+            return (MoveableBoxState) other;
+        }
+
+        // The angle to move
+        double theta = atan2(moveableBoxState.mainBox.getRect().getY() - mainBox.getRect().getY(),
+                moveableBoxState.mainBox.getRect().getX() - mainBox.getRect().getX()
+        );
+
+        MoveableBoxState newState = clone();
+
+        // Move along the line with direction theta by distance delta
+        MoveableBox newMainBox = new MoveableBox(mainBox.getRect().getX() + delta * cos(theta),
+                mainBox.getRect().getY() + delta * sin(theta),
+                mainBox.getRect().getWidth()
+        );
+
+        newState.setMainBox(newMainBox);
+
+        return newState;
     }
 
     /**
@@ -207,7 +209,7 @@ public class MoveableBoxState extends State {
      * @param <U> the class of action
      */
     @Override
-    public <T extends State, U extends Action> void configure(TreeNode<T, U> nearestNode) {
+    public <T extends State, U> void configure(TreeNode<T, U> nearestNode) {
         // Make sure the node has a state of class MoveableBoxState
         if (nearestNode.getState() instanceof MoveableBoxState) {
             MoveableBoxState state = (MoveableBoxState) nearestNode.getState();

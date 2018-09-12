@@ -1,36 +1,14 @@
 package solution;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
+import static java.lang.Math.PI;
 import static java.lang.Math.random;
-import static solution.Util.TO_RADIANS;
-import static solution.Util.randomTo;
 
 /**
  * An rapidly exploring random tree for the robot
  */
-public class RobotRRT {
-    /**
-     * Max distance a node can randomly expand doing RRT
-     */
-    private static double MAX_DISTANCE = 0.5;
-
-    /**
-     * The tree of states
-     */
-    private TreeNodeSingle<RobotState> tree;
-
-    /**
-     * List of all the nodes
-     */
-    private ArrayList<TreeNodeSingle<RobotState>> nodes;
-
-    /**
-     * The solution node for this RRT.
-     */
-    protected TreeNodeSingle<RobotState> solutionNode = null;
-
+public class RobotRRT extends RRT<RobotState, RobotAction> {
     /**
      * The initial robot
      */
@@ -42,7 +20,7 @@ public class RobotRRT {
     private Robot goalRobot;
 
     /**
-     * Construct an RRT
+     * Construct a RobotRRT
      *
      * @param staticObstacles the static obstacles
      * @param initialRobot the initial robot
@@ -52,54 +30,10 @@ public class RobotRRT {
         this.goalRobot = goalRobot;
 
         // Make an initial tree
-        tree = new TreeNodeSingle<>(new RobotState(initialRobot, staticObstacles));
+        tree = new TreeNode<>(new RobotState(initialRobot, staticObstacles), null);
 
-        // List of all the nodes
-        nodes = new ArrayList<>();
+        // Add the root to nodes
         nodes.add(tree);
-    }
-
-    /**
-     * Expand the tree one step. This function has to be implemented by the subclasses
-     *
-     * @return if a solution is found or not
-     */
-    public boolean expand() {
-        // Sample a random node in free space
-        while (true) {
-            try {
-                double randX = random();
-                double randY = random();
-                double randTheta = randomTo(360) / TO_RADIANS;
-
-
-                RobotState newRandomState = new RobotState(
-                        new Robot(randX, randY, randTheta, initialRobot.getWidth()), null
-                );
-
-                // Get the nearest node to the new one
-                TreeNodeSingle<RobotState> node = nearestNode(newRandomState);
-
-                newRandomState.setStaticObstacles(node.getState().getStaticObstacles());
-
-                // Make sure this is valid
-                newRandomState.validate();
-
-                // Step towards the new random state up to MAX_DISTANCE
-                RobotState newState = node.getState().stepTowards(newRandomState, MAX_DISTANCE);
-
-                // Make sure this is valid still
-                newState.validate();
-
-                // Make the new node
-                TreeNodeSingle<RobotState> newNode = connectNodeToState(node, newState, true);
-
-                // Try connecting this new state to the goal
-                return checkSolution(newNode);
-            } catch (InvalidStateException e) {
-                // If this happens, try again. Means the new state is in collision
-            }
-        }
     }
 
     /**
@@ -107,7 +41,8 @@ public class RobotRRT {
      *
      * @return if a solution is found or not
      */
-    private boolean checkSolution(TreeNodeSingle<RobotState> newestNode) {
+    @Override
+    protected boolean checkSolution(TreeNode<RobotState, RobotAction> newestNode) {
         try {
             // Try to connect to the goal
             solutionNode = connectNodeToState(newestNode, new RobotState(
@@ -123,41 +58,21 @@ public class RobotRRT {
     }
 
     /**
-     * Find the nearest node in the tree to a given state. Uses straight line distance
+     * Attempt to connect a node to a state
      *
-     * @param state the state to find the node nearest to
+     * @param node the parent node
+     * @param state the child state
+     * @param addChild whether to add the new node to the tree or not
      *
-     * @return the nearest node
+     * @return a new node containing the child state. Will return node if they are in the same
+     * place.
+     *
+     * @throws InvalidStateException if this is not possible
      */
-    private TreeNodeSingle<RobotState> nearestNode(RobotState state) {
-        TreeNodeSingle<RobotState> bestNode = nodes.get(0);
-        double shortestDistance = state.distanceTo(bestNode.getState());
-
-        for (TreeNodeSingle<RobotState> node : nodes) {
-            double distance = node.getState().distanceTo(state);
-
-            if (distance < shortestDistance) {
-                shortestDistance = distance;
-                bestNode = node;
-            }
-        }
-
-        return bestNode;
-    }
-
-    /**
-     * Add a child node to a parent, and also add to the list of nodes.
-     *
-     * @param parent the parent node
-     * @param child the child node
-     */
-    private void addChildNode(TreeNodeSingle<RobotState> parent, TreeNodeSingle<RobotState> child) {
-        parent.addChild(child);
-        nodes.add(child);
-    }
-
-    private TreeNodeSingle<RobotState> connectNodeToState(TreeNodeSingle<RobotState> node, RobotState state,
-                                                          boolean addChild) throws InvalidStateException {
+    @Override
+    protected TreeNode<RobotState, RobotAction> connectNodeToState(
+            TreeNode<RobotState, RobotAction> node, RobotState state, boolean addChild)
+            throws InvalidStateException {
         double nodeX = node.getState().getRobot().getPos().getX();
         double nodeY = node.getState().getRobot().getPos().getX();
         double nodeTheta = node.getState().getRobot().getTheta();
@@ -173,7 +88,7 @@ public class RobotRRT {
         if (!(dx == 0 && dy == 0 && dtheta == 0)) {
             // Check if the action is valid. Will throw an
             // InvalidStateException if not.
-            TreeNodeSingle<RobotState> newNode = node.getState().action(dx, dy, dtheta);
+            TreeNode<RobotState, RobotAction> newNode = node.getState().action(dx, dy, dtheta);
 
             // Add the new node to the tree
             if (addChild) {
@@ -188,20 +103,14 @@ public class RobotRRT {
     }
 
     /**
-     * Gets the solution node
+     * Generate a new random state
      *
-     * @return the solution node
+     * @return a new random state
      */
-    public TreeNodeSingle<RobotState> getSolution() {
-        return solutionNode;
-    }
-
-    /**
-     * Gets the tree
-     *
-     * @return the tree
-     */
-    public TreeNodeSingle<RobotState> getTree() {
-        return tree;
+    @Override
+    protected RobotState newRandomState() {
+        return new RobotState(
+                new Robot(random(), random(), random() * 2 * PI, initialRobot.getWidth()), null
+        );
     }
 }

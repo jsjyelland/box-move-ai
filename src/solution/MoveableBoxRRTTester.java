@@ -2,9 +2,8 @@ package solution;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
 
-public class Main {
+public class MoveableBoxRRTTester {
     public static void main(String[] args) {
         // Create an RRT
         ArrayList<Box> initialStaticObstacles = new ArrayList<>(Arrays.asList(
@@ -29,7 +28,7 @@ public class Main {
         );
 
         // Create the visualizer
-        Visualiser visualiser = new Visualiser();
+        Visualiser visualiser = new MoveableBoxVisualiser();
         Window window = new Window(visualiser);
 
         // Loop until a solution is found
@@ -41,13 +40,6 @@ public class Main {
             }
 
             visualiser.paintTree(rrt.getTree());
-
-            // Wait because this is too fast to watch
-//            try {
-//                TimeUnit.MILLISECONDS.sleep(10);
-//            } catch (InterruptedException e) {
-//                System.out.println(e);
-//            }
         }
     }
 }

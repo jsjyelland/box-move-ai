@@ -1,5 +1,6 @@
 package solution;
 
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
@@ -8,7 +9,7 @@ import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 
 /**
- * The robot. Consists of a line segment, and can move vertically, horizontally and can rotate.
+ * The robot. Consists of a line segment which can move vertically, horizontally and can rotate.
  */
 public class Robot {
     /**
@@ -17,7 +18,7 @@ public class Robot {
     private Point2D pos;
 
     /**
-     * The angle of the robot
+     * The angle of the robot in radians [0, 2pi].
      */
     private double theta;
 
@@ -49,6 +50,24 @@ public class Robot {
      */
     public Robot(double x, double y, double theta, double width) {
         this(new Point2D.Double(x, y), theta, width);
+    }
+
+    /**
+     * Get the centre x position
+     *
+     * @return the centre x position
+     */
+    public double getX() {
+        return pos.getX();
+    }
+
+    /**
+     * Get the centre y position
+     *
+     * @return the centre y position
+     */
+    public double getY() {
+        return pos.getY();
     }
 
     /**
@@ -85,6 +104,24 @@ public class Robot {
      */
     public double getY2() {
         return pos.getY() + sin(theta) * width / 2;
+    }
+
+    /**
+     * Get the point end 1
+     *
+     * @return the point end 1
+     */
+    public Point2D getP1() {
+        return new Point2D.Double(getX1(), getY1());
+    }
+
+    /**
+     * Get the point end 2
+     *
+     * @return the point end 2
+     */
+    public Point2D getP2() {
+        return new Point2D.Double(getX2(), getY2());
     }
 
     /**
@@ -127,7 +164,7 @@ public class Robot {
         // Check if the robot is inside the workspace
         Rectangle2D boundingRectangle = new Rectangle2D.Double(0, 0, 1, 1);
         if (!boundingRectangle.contains(getX1(), getY1()) ||
-                !boundingRectangle.contains(getX2(), getY2())) {
+                    !boundingRectangle.contains(getX2(), getY2())) {
             return false;
         }
 
@@ -170,5 +207,9 @@ public class Robot {
      */
     public Robot clone() {
         return new Robot((Point2D) pos.clone(), theta, width);
+    }
+
+    public Line2D getLine() {
+        return new Line2D.Double(getP1(), getP2());
     }
 }

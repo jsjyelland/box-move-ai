@@ -33,7 +33,7 @@ public class GoalBoxRRT extends MoveableBoxRRT {
      * @return whether the solution is valid or not
      */
     @Override
-    protected boolean checkSolution(TreeNode<MoveableBoxState, Action> newestNode) {
+    protected boolean checkSolution(TreeNode<MoveableBoxState, MoveableBoxAction> newestNode) {
         try {
             // Try to connect to the goal
             solutionNode = connectNodeToState(newestNode, new MoveableBoxState(
@@ -52,12 +52,13 @@ public class GoalBoxRRT extends MoveableBoxRRT {
     }
 
     /**
-     * Get the leaves of the solution trees
+     * Get the leaves of the solution trees. This is the top level, so the leaves list contains
+     * only one element, solutionNode.
      *
      * @return the leaves of the solution trees
      */
     @Override
-    protected ArrayList<TreeNode<MoveableBoxState, Action>> getSolutionLeaves() {
+    protected ArrayList<TreeNode<MoveableBoxState, MoveableBoxAction>> getSolutionLeaves() {
         return new ArrayList<>(Arrays.asList(solutionNode));
     }
 }

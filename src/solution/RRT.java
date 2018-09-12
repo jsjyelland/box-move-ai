@@ -8,7 +8,7 @@ import java.util.ArrayList;
  * @param <T> the state class
  * @param <U> the action class
  */
-public abstract class RRT<T extends State, U extends Action> {
+public abstract class RRT<T extends State, U> {
     /**
      * Max distance a node can randomly expand doing RRT
      */
@@ -143,14 +143,6 @@ public abstract class RRT<T extends State, U extends Action> {
     public TreeNode<T, U> getTree() {
         return tree;
     }
-
-    /**
-     * Gets a list of the leaf nodes of all solutions including parent RRTs.
-     * Array index 0 is the deepest level. Increasing index means decreasing deepness.
-     *
-     * @return the list of solution leaf nodes
-     */
-    protected abstract ArrayList<TreeNode<T, U>> getSolutionLeaves();
 
     /**
      * Generate a new random state

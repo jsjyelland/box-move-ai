@@ -53,7 +53,7 @@ public abstract class State {
      *
      * @return the new state
      *
-     * @throws InvalidStateException if the new state is invalid
+     * @throws InvalidStateException if other does not conform to the subclass type
      */
     public abstract State stepTowards(State other, double delta) throws InvalidStateException;
 
@@ -91,5 +91,5 @@ public abstract class State {
      * @param <T> the class of state
      * @param <U> the class of action
      */
-    public abstract <T extends State, U extends Action> void configure(TreeNode<T, U> nearestNode);
+    public abstract <T extends State, U> void configure(TreeNode<T, U> nearestNode);
 }

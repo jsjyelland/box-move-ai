@@ -7,16 +7,11 @@ import static java.lang.Math.*;
 /**
  * A state object, containing the location and orientation of the robot.
  */
-public class RobotState {
+public class RobotState extends State {
     /**
      * The robot
      */
     private Robot robot;
-
-    /**
-     * A list of the static obstacles in the workspace
-     */
-    private ArrayList<Box> staticObstacles;
 
     /**
      * Construct a new robot state
@@ -25,8 +20,8 @@ public class RobotState {
      * @param staticObstacles the static obstacles to check collision with
      */
     public RobotState(Robot robot, ArrayList<Box> staticObstacles) {
+        super(staticObstacles);
         this.robot = robot;
-        this.staticObstacles = staticObstacles;
     }
 
     /**
@@ -40,18 +35,28 @@ public class RobotState {
      *
      * @throws InvalidStateException if the new state is invalid
      */
-    public TreeNodeSingle<RobotState> action(double dx, double dy, double dtheta)
+    public TreeNode<RobotState, RobotAction> action(double dx, double dy, double dtheta)
             throws InvalidStateException {
         // Clone this state
         RobotState newState = clone();
 
-        // Move the robot
-        newState.robot.move(dx, dy, dtheta);
+        double distance = distanceWithDelta(dx, dy, dtheta);
+        double numSteps = ceil(distance / 0.001);
+        double stepSize = distance / numSteps;
 
-        // TODO collision check
+        // Step along the line, checking the robot configuration at each step
+        for (double i = 1; i <= numSteps; i++) {
+            // Move the robot by step size
+            newState.robot.move(i * stepSize * dx, i * stepSize * dy, i * stepSize * dtheta);
+
+            // Check if this configuration is valid
+            if (!robot.isValid(staticObstacles)) {
+                throw new InvalidStateException();
+            }
+        }
 
         // Create and return a new node with this new state
-        return new TreeNodeSingle<>(newState);
+        return new TreeNode<>(newState, new RobotAction(dx, dy, dtheta));
     }
 
     /**
@@ -60,20 +65,10 @@ public class RobotState {
      *
      * @return whether the state is valid or not
      */
+    @Override
     public boolean isValid() {
         // Check if the robot is valid
         return robot.isValid(staticObstacles);
-    }
-
-    /**
-     * Validate the state
-     *
-     * @throws InvalidStateException if the state is invalid
-     */
-    public void validate() throws InvalidStateException {
-        if (!isValid()) {
-            throw new InvalidStateException();
-        }
     }
 
     /**
@@ -81,8 +76,23 @@ public class RobotState {
      *
      * @return the cloned state
      */
+    @Override
     public RobotState clone() {
         return new RobotState(robot.clone(), new ArrayList<>(staticObstacles));
+    }
+
+    /**
+     * Calculate the distance of a change in x, y, and theta. This represents the euclidean distance
+     * on a 3D graph of x, y and theta.
+     *
+     * @param dx change in x
+     * @param dy change in y
+     * @param dtheta change in theta
+     *
+     * @return the distance
+     */
+    private double distanceWithDelta(double dx, double dy, double dtheta) {
+        return sqrt(pow(dx, 2) + pow(dy, 2) + pow(dtheta, 2));
     }
 
     /**
@@ -91,35 +101,81 @@ public class RobotState {
      *
      * @param other the other state to calculate the distance to
      *
-     * @return the distance between states
+     * @return the distance between states if other is a RobotState. -1 otherwise.
      */
-    public double distanceTo(RobotState other) {
-        return sqrt(
-                pow(robot.getPos().getX() - other.getRobot().getPos().getX(), 2) +
-                        pow(robot.getPos().getY() - other.getRobot().getPos().getY(), 2) +
-                        pow(robot.getTheta() - other.getRobot().getTheta(), 2)
-        );
+    @Override
+    public double distanceTo(State other) {
+        if (other instanceof RobotState) {
+            RobotState robotState = (RobotState) other;
+
+            return distanceWithDelta(
+                    robot.getPos().getX() - robotState.getRobot().getPos().getX(),
+                    robot.getPos().getY() - robotState.getRobot().getPos().getY(),
+                    robot.getTheta() - robotState.getRobot().getTheta()
+            );
+        } else {
+            return -1;
+        }
     }
 
-    public RobotState stepTowards(RobotState other, double delta) throws InvalidStateException {
-        if (distanceTo(other) <= delta) {
-            return other;
+    /**
+     * Create a new state that is at most delta distance along the line between this state and a new
+     * one. Distance means the euclidean distance on a 3D graph with axes x, y, theta.
+     *
+     * @param other the other state
+     * @param delta the distance to move along the line between the two states
+     *
+     * @return the new state
+     *
+     * @throws InvalidStateException if other is not a RobotState
+     */
+    @Override
+    public RobotState stepTowards(State other, double delta) throws InvalidStateException {
+        // Make sure other is a RobotState
+        if (!(other instanceof RobotState)) {
+            throw new InvalidStateException();
+        }
+
+        RobotState robotState = (RobotState) other;
+
+        // Distance to the other state
+        double distance = distanceTo(other);
+
+        // No need to do anything
+        if (distance <= delta) {
+            return robotState;
         }
 
         RobotState newState = clone();
 
-        // TODO not sure about this one
+        // Move along the line between this state and other by amount delta
+        Robot newRobot = new Robot(
+                robot.getX() + (delta / distance) * (robotState.getRobot().getX() - robot.getX()),
+                robot.getY() + (delta / distance) * (robotState.getRobot().getY() - robot.getY()),
+                robot.getTheta() + (delta / distance) * (robotState.getRobot().getTheta() -
+                                                                 robot.getTheta()),
+                robot.getWidth()
+        );
+
+        newState.setRobot(newRobot);
 
         return newState;
     }
 
     /**
-     * Add a static obstacle
+     * Configure a state, given the nearest node in the search tree. Sets the static obstacles from
+     * this node. The node must have a state class of RobotState
      *
-     * @param newObstacle the obstacle to add
+     * @param nearestNode the nearest node in the search tree
+     * @param <T> the class of state
+     * @param <U> the class of action
      */
-    public void addStaticObstacle(Box newObstacle) {
-        staticObstacles.add(newObstacle);
+    @Override
+    public <T extends State, U> void configure(TreeNode<T, U> nearestNode) {
+        if (nearestNode.getState() instanceof RobotState) {
+            RobotState state = (RobotState) nearestNode.getState();
+            setStaticObstacles(state.getStaticObstacles());
+        }
     }
 
     /**
@@ -132,20 +188,11 @@ public class RobotState {
     }
 
     /**
-     * Get the static obstacles
+     * Set the robot
      *
-     * @return the static obstacles
+     * @param robot the new robot
      */
-    public ArrayList<Box> getStaticObstacles() {
-        return staticObstacles;
-    }
-
-    /**
-     * Set the static obstacles
-     *
-     * @param staticObstacles the static obstacles
-     */
-    public void setStaticObstacles(ArrayList<Box> staticObstacles) {
-        this.staticObstacles = staticObstacles;
+    public void setRobot(Robot robot) {
+        this.robot = robot;
     }
 }

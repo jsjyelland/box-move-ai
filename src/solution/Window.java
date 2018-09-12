@@ -1,8 +1,10 @@
 package solution;
 
-import javax.swing.*;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.border.EtchedBorder;
-import java.awt.*;
+import javax.swing.BorderFactory;
+import java.awt.BorderLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 

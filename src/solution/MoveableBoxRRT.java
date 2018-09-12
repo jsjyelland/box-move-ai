@@ -7,7 +7,7 @@ import static java.lang.Math.random;
 /**
  * An RRT for moving any moveable box
  */
-public abstract class MoveableBoxRRT extends RRT<MoveableBoxState, Action> {
+public abstract class MoveableBoxRRT extends RRT<MoveableBoxState, MoveableBoxAction> {
     /**
      * The initial box
      */
@@ -41,13 +41,14 @@ public abstract class MoveableBoxRRT extends RRT<MoveableBoxState, Action> {
      * @param state the child state
      * @param addChild whether to add the new node to the tree or not
      *
-     * @return a new node containing the child state
+     * @return a new node containing the child state. Will return node if they are in the same
+     * place.
      *
      * @throws InvalidStateException if this is not possible
      */
     @Override
-    protected TreeNode<MoveableBoxState, Action> connectNodeToState(
-            TreeNode<MoveableBoxState, Action> node, MoveableBoxState state, boolean addChild)
+    protected TreeNode<MoveableBoxState, MoveableBoxAction> connectNodeToState(
+            TreeNode<MoveableBoxState, MoveableBoxAction> node, MoveableBoxState state, boolean addChild)
             throws InvalidStateException {
         double nodeX = node.getState().getMainBox().getRect().getX();
         double nodeY = node.getState().getMainBox().getRect().getY();
@@ -63,7 +64,7 @@ public abstract class MoveableBoxRRT extends RRT<MoveableBoxState, Action> {
 
                 // Check if the action is valid. Will throw an
                 // InvalidStateException if not.
-                TreeNode<MoveableBoxState, Action> newNode = node.getState().action(dx, dy);
+                TreeNode<MoveableBoxState, MoveableBoxAction> newNode = node.getState().action(dx, dy);
 
                 // Add the new node to the tree
                 if (addChild) {
@@ -79,7 +80,7 @@ public abstract class MoveableBoxRRT extends RRT<MoveableBoxState, Action> {
                 try {
                     // First attempt. Corner node with (stateX, nodeY).
                     // Will throw an InvalidStateException if it fails.
-                    TreeNode<MoveableBoxState, Action> cornerNode = connectNodeToState(node, new MoveableBoxState(
+                    TreeNode<MoveableBoxState, MoveableBoxAction> cornerNode = connectNodeToState(node, new MoveableBoxState(
                             new MoveableBox(stateX, nodeY, state.getMainBox().getRect().getWidth()),
                             node.getState().getStaticObstacles(),
                             node.getState().getMoveableObstacles()
@@ -87,7 +88,7 @@ public abstract class MoveableBoxRRT extends RRT<MoveableBoxState, Action> {
 
                     // Now connect this corner node to the state.
                     // Will throw an InvalidStateException if it fails.
-                    TreeNode<MoveableBoxState, Action> endNode = connectNodeToState(cornerNode, state, true);
+                    TreeNode<MoveableBoxState, MoveableBoxAction> endNode = connectNodeToState(cornerNode, state, true);
 
                     // Add the corner node as a child of the parent node
                     addChildNode(node, cornerNode);
@@ -96,7 +97,7 @@ public abstract class MoveableBoxRRT extends RRT<MoveableBoxState, Action> {
                 } catch (InvalidStateException e) {
                     // Second attempt. Corner node with (nodeX, stateY).
                     // Will throw an InvalidStateException if it fails.
-                    TreeNode<MoveableBoxState, Action> cornerNode = connectNodeToState(node, new MoveableBoxState(
+                    TreeNode<MoveableBoxState, MoveableBoxAction> cornerNode = connectNodeToState(node, new MoveableBoxState(
                             new MoveableBox(nodeX, stateY, state.getMainBox().getRect().getWidth()),
                             node.getState().getStaticObstacles(),
                             node.getState().getMoveableObstacles()
@@ -104,7 +105,7 @@ public abstract class MoveableBoxRRT extends RRT<MoveableBoxState, Action> {
 
                     // Now connect this corner node to the state.
                     // Will throw an InvalidStateException if it fails.
-                    TreeNode<MoveableBoxState, Action> endNode = connectNodeToState(cornerNode, state, true);
+                    TreeNode<MoveableBoxState, MoveableBoxAction> endNode = connectNodeToState(cornerNode, state, true);
 
                     // Add the corner node as a child of the parent node
                     addChildNode(node, cornerNode);
@@ -128,7 +129,7 @@ public abstract class MoveableBoxRRT extends RRT<MoveableBoxState, Action> {
         }
 
         // Loop through the solution path
-        TreeNode<MoveableBoxState, Action> currentNode = solutionNode;
+        TreeNode<MoveableBoxState, MoveableBoxAction> currentNode = solutionNode;
 
         while (currentNode.getParent() != null) {
             currentNode.getAction().moveBoxesOutOfPath(getSolutionLeaves());
@@ -147,4 +148,12 @@ public abstract class MoveableBoxRRT extends RRT<MoveableBoxState, Action> {
                 new MoveableBox(random(), random(), initialBox.getRect().getWidth()), null, null
         );
     }
+
+    /**
+     * Gets a list of the leaf nodes of all solutions including parent RRTs. Array index 0 is the
+     * deepest level. Increasing index means decreasing deepness.
+     *
+     * @return the list of solution leaf nodes
+     */
+    protected abstract ArrayList<TreeNode<MoveableBoxState, MoveableBoxAction>> getSolutionLeaves();
 }

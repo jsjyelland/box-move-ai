@@ -5,11 +5,11 @@ import java.util.ArrayList;
 /**
  * Information about a transition between states
  */
-public class Action {
+public class MoveableBoxAction {
     /**
      * The solution nodes of paths to move boxes out of the way
      */
-    private ArrayList<TreeNode<MoveableBoxState, Action>> moveableBoxSolutionNodes;
+    private ArrayList<TreeNode<MoveableBoxState, MoveableBoxAction>> moveableBoxSolutionNodes;
 
     /**
      * The x distance moved
@@ -33,7 +33,7 @@ public class Action {
      * @param dx distance moved in the x direction
      * @param dy distance moved in the y direction
      */
-    public Action(Box movementBox, double dx, double dy) {
+    public MoveableBoxAction(Box movementBox, double dx, double dy) {
         this.dx = dx;
         this.dy = dy;
         this.movementBox = movementBox;
@@ -46,8 +46,10 @@ public class Action {
      *
      * @param solutionNodes the solutions of the trees above
      */
-    public void moveBoxesOutOfPath(ArrayList<TreeNode<MoveableBoxState, Action>> solutionNodes) {
-        TreeNode<MoveableBoxState, Action> topLevelSolution = solutionNodes.get(solutionNodes.size() - 1);
+    public void moveBoxesOutOfPath(
+            ArrayList<TreeNode<MoveableBoxState, MoveableBoxAction>> solutionNodes) {
+        TreeNode<MoveableBoxState, MoveableBoxAction> topLevelSolution =
+                solutionNodes.get(solutionNodes.size() - 1);
         ArrayList<MoveableBox> boxesToMove = new ArrayList<>();
 
         for (MoveableBox moveableObstacle :
@@ -77,7 +79,7 @@ public class Action {
             while (!obstacleRRT.expand());
 
             // Get the solution
-            TreeNode<MoveableBoxState, Action> solution = obstacleRRT.getSolution();
+            TreeNode<MoveableBoxState, MoveableBoxAction> solution = obstacleRRT.getSolution();
 
             // Add the solution to the list
             moveableBoxSolutionNodes.add(0, solution);
@@ -114,7 +116,7 @@ public class Action {
      *
      * @return the solution nodes
      */
-    public ArrayList<TreeNode<MoveableBoxState, Action>> getMoveableBoxSolutionNodes() {
+    public ArrayList<TreeNode<MoveableBoxState, MoveableBoxAction>> getMoveableBoxSolutionNodes() {
         return moveableBoxSolutionNodes;
     }
 
