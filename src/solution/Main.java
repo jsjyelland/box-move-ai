@@ -29,7 +29,7 @@ public class Main {
         );
 
         // Create the visualizer
-        Visualiser visualiser = new Visualiser(initialStaticObstacles, initialMoveableObstacles);
+        Visualiser visualiser = new Visualiser();
         Window window = new Window(visualiser);
 
         // Loop until a solution is found
@@ -37,7 +37,6 @@ public class Main {
             if (rrt.expand()) {
                 visualiser.paintSolution(rrt.getSolution());
                 System.out.println("Solution found");
-                System.out.println(rrt.getSolution());
                 break;
             }
 

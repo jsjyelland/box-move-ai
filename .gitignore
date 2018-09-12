@@ -1,5 +1,5 @@
 .idea/
 out/
-Assignment1.iml
+*.iml
 .DS_Store
 */.DS_Store

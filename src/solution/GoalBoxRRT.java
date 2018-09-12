@@ -6,7 +6,7 @@ import java.util.Arrays;
 /**
  * An RRT for moving a goal box
  */
-public class GoalBoxRRT extends RRT {
+public class GoalBoxRRT extends MoveableBoxRRT {
     /**
      * The goal box
      */
@@ -33,26 +33,31 @@ public class GoalBoxRRT extends RRT {
      * @return whether the solution is valid or not
      */
     @Override
-    protected boolean checkSolution(TreeNode<State, Action> newestNode) {
+    protected boolean checkSolution(TreeNode<MoveableBoxState, Action> newestNode) {
         try {
             // Try to connect to the goal
-            solutionNode = connectNodeToState(newestNode, new State(
+            solutionNode = connectNodeToState(newestNode, new MoveableBoxState(
                     goalBox,
                     newestNode.getState().getStaticObstacles(),
                     newestNode.getState().getMoveableObstacles()
             ), true);
 
-            TreeNode<State, Action> currentNode = solutionNode;
-            while (currentNode.getParent() != null) {
-                // Move any moveable obstacles out of the way
-                currentNode.getAction().moveBoxesOutOfPath(new ArrayList<>(Arrays.asList(solutionNode)));
-                currentNode = currentNode.getParent();
-            }
+            moveMoveableObstacles();
 
             return true;
         } catch (InvalidStateException e) {
-            // Couldn't connect to the goal. Exit the loop
+            // Couldn't connect to the goal
             return false;
         }
+    }
+
+    /**
+     * Get the leaves of the solution trees
+     *
+     * @return the leaves of the solution trees
+     */
+    @Override
+    protected ArrayList<TreeNode<MoveableBoxState, Action>> getSolutionLeaves() {
+        return new ArrayList<>(Arrays.asList(solutionNode));
     }
 }

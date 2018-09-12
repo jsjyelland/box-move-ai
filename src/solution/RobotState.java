@@ -2,9 +2,7 @@ package solution;
 
 import java.util.ArrayList;
 
-import static java.lang.Math.atan2;
-import static java.lang.Math.cos;
-import static java.lang.Math.sin;
+import static java.lang.Math.*;
 
 /**
  * A state object, containing the location and orientation of the robot.
@@ -21,7 +19,7 @@ public class RobotState {
     private ArrayList<Box> staticObstacles;
 
     /**
-     * Construct a new state, checking if it is in collision
+     * Construct a new robot state
      *
      * @param robot the robot
      * @param staticObstacles the static obstacles to check collision with
@@ -40,11 +38,10 @@ public class RobotState {
      *
      * @return a new node containing the new state and the action to get to this state
      *
-     * @throws InvalidStateException if the new state is invalid, or if the move is in two
-     * directions.
+     * @throws InvalidStateException if the new state is invalid
      */
-    public TreeNodeSingle<RobotState> action(double dx, double dy, double dtheta) throws InvalidStateException{
-
+    public TreeNodeSingle<RobotState> action(double dx, double dy, double dtheta)
+            throws InvalidStateException {
         // Clone this state
         RobotState newState = clone();
 
@@ -53,20 +50,18 @@ public class RobotState {
 
         // TODO collision check
 
-        // Create a new node with this new state and an action
-        TreeNodeSingle<RobotState> newNode = new TreeNodeSingle<>(newState);
-
-        return newNode;
+        // Create and return a new node with this new state
+        return new TreeNodeSingle<>(newState);
     }
 
     /**
-     * Check if the state is valid. The state is valid if the robot doesn't collide with any
-     * of the static obstacles and is inside the workspace.
+     * Check if the state is valid. The state is valid if the robot doesn't collide with any of the
+     * static obstacles and is inside the workspace.
      *
      * @return whether the state is valid or not
      */
     public boolean isValid() {
-        // Check if the mainBox is valid
+        // Check if the robot is valid
         return robot.isValid(staticObstacles);
     }
 
@@ -90,9 +85,20 @@ public class RobotState {
         return new RobotState(robot.clone(), new ArrayList<>(staticObstacles));
     }
 
+    /**
+     * Calculate the distance to another state. Is the euclidean distance on a 3D graph with axes x,
+     * y, theta.
+     *
+     * @param other the other state to calculate the distance to
+     *
+     * @return the distance between states
+     */
     public double distanceTo(RobotState other) {
-        // TODO not sure about this one
-        return 0;
+        return sqrt(
+                pow(robot.getPos().getX() - other.getRobot().getPos().getX(), 2) +
+                        pow(robot.getPos().getY() - other.getRobot().getPos().getY(), 2) +
+                        pow(robot.getTheta() - other.getRobot().getTheta(), 2)
+        );
     }
 
     public RobotState stepTowards(RobotState other, double delta) throws InvalidStateException {

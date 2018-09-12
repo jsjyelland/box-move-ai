@@ -9,7 +9,7 @@ public class Action {
     /**
      * The solution nodes of paths to move boxes out of the way
      */
-    private ArrayList<TreeNode<State, Action>> moveableBoxSolutionNodes;
+    private ArrayList<TreeNode<MoveableBoxState, Action>> moveableBoxSolutionNodes;
 
     /**
      * The x distance moved
@@ -22,21 +22,21 @@ public class Action {
     private double dy;
 
     /**
-     * The boxes that need moving out of the way
+     * The bounding box representing the movement
      */
-    private ArrayList<MoveableBox> boxesToMove;
+    private Box movementBox;
 
     /**
      * Construct an action
      *
-     * @param boxesToMove the boxes that need moving out of the way
+     * @param movementBox the bounding box representing the movement
      * @param dx distance moved in the x direction
      * @param dy distance moved in the y direction
      */
-    public Action(ArrayList<MoveableBox> boxesToMove, double dx, double dy) {
-        this.boxesToMove = boxesToMove;
+    public Action(Box movementBox, double dx, double dy) {
         this.dx = dx;
         this.dy = dy;
+        this.movementBox = movementBox;
 
         moveableBoxSolutionNodes = new ArrayList<>();
     }
@@ -46,9 +46,20 @@ public class Action {
      *
      * @param solutionNodes the solutions of the trees above
      */
-    public void moveBoxesOutOfPath(ArrayList<TreeNode<State, Action>> solutionNodes) {
+    public void moveBoxesOutOfPath(ArrayList<TreeNode<MoveableBoxState, Action>> solutionNodes) {
+        TreeNode<MoveableBoxState, Action> topLevelSolution = solutionNodes.get(solutionNodes.size() - 1);
+        ArrayList<MoveableBox> boxesToMove = new ArrayList<>();
+
+        for (MoveableBox moveableObstacle :
+                new ArrayList<>(topLevelSolution.getState().getMoveableObstacles())) {
+            if (moveableObstacle.intersects(movementBox)) {
+                boxesToMove.add(moveableObstacle);
+                topLevelSolution.getState().removeMoveableObstacle(moveableObstacle);
+            }
+        }
+
         // Make sure there are boxes to move
-        if (boxesToMove == null || boxesToMove.size() == 0) {
+        if (boxesToMove.size() == 0) {
             return;
         }
 
@@ -66,7 +77,7 @@ public class Action {
             while (!obstacleRRT.expand());
 
             // Get the solution
-            TreeNode<State, Action> solution = obstacleRRT.getSolution();
+            TreeNode<MoveableBoxState, Action> solution = obstacleRRT.getSolution();
 
             // Add the solution to the list
             moveableBoxSolutionNodes.add(0, solution);
@@ -76,7 +87,7 @@ public class Action {
             Box newBox = new Box(solution.getState().getMainBox().getRect());
 
             // Make the moveable obstacle static
-            solutionNodes.get(solutionNodes.size() - 1).getState().addStaticObstacle(newBox);
+            topLevelSolution.getState().addStaticObstacle(newBox);
         }
     }
 
@@ -103,7 +114,16 @@ public class Action {
      *
      * @return the solution nodes
      */
-    public ArrayList<TreeNode<State, Action>> getMoveableBoxSolutionNodes() {
+    public ArrayList<TreeNode<MoveableBoxState, Action>> getMoveableBoxSolutionNodes() {
         return moveableBoxSolutionNodes;
+    }
+
+    /**
+     * Gets the box representing the movement
+     *
+     * @return the movement box
+     */
+    public Box getMovementBox() {
+        return movementBox;
     }
 }

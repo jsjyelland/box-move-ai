@@ -31,7 +31,7 @@ public class VisualisationPanel extends JComponent {
             0, -1);
     private AffineTransform transform = null;
 
-    // State Information
+    // MoveableBoxState Information
     private RobotConfig currentRobotConfig;
     private List<Box> currentMovingBoxes;
     private List<Box> currentMovingObstacles;

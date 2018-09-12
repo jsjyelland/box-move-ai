@@ -98,7 +98,7 @@ public class Tester {
      * @return true of false
      */
     public boolean testInitialFirst(){
-        System.out.println("Test Initial State");
+        System.out.println("Test Initial MoveableBoxState");
         if (hasInitialFirst()) {
             System.out.println("Passed.");
             return true;

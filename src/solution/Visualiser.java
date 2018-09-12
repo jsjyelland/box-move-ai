@@ -3,31 +3,20 @@ package solution;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
-import java.util.ArrayList;
 
 /**
  * A visualisation of the solution
  */
 public class Visualiser extends JComponent {
     /**
-     * The static obstacles
-     */
-    private ArrayList<Box> staticObstacles;
-
-    /**
-     * The moveable obstacles
-     */
-    private ArrayList<MoveableBox> moveableObstacles;
-
-    /**
      * The tree
      */
-    private TreeNode<State, Action> tree;
+    private TreeNode<MoveableBoxState, Action> tree;
 
     /**
      * The solution node (a leaf of the tree)
      */
-    private TreeNode<State, Action> solutionNode;
+    private TreeNode<MoveableBoxState, Action> solutionNode;
 
     /**
      * Transform to convert the [0, 1] * [0, 1] size of the workspace to the window size
@@ -35,15 +24,11 @@ public class Visualiser extends JComponent {
     private AffineTransform transform;
 
     /**
-     * Create a visualiser with static obstacles
-     *
-     * @param staticObstacles the static obstacles in the workspace
+     * Create a visualiser
      */
-    public Visualiser(ArrayList<Box> staticObstacles, ArrayList<MoveableBox> moveableObstacles) {
+    public Visualiser() {
         this.setBackground(Color.WHITE);
         this.setOpaque(true);
-        this.staticObstacles = staticObstacles;
-        this.moveableObstacles = moveableObstacles;
         this.tree = null;
         this.solutionNode = null;
         repaint();
@@ -54,7 +39,7 @@ public class Visualiser extends JComponent {
      *
      * @param tree the tree to paint
      */
-    public void paintTree(TreeNode<State, Action> tree) {
+    public void paintTree(TreeNode<MoveableBoxState, Action> tree) {
         this.tree = tree;
         repaint();
     }
@@ -75,23 +60,26 @@ public class Visualiser extends JComponent {
         g2.setColor(Color.WHITE);
         g2.fillRect(0, 0, getWidth(), getHeight());
 
-        // Draw all the static obstacles
-        g2.setColor(Color.BLACK);
-        for (Box obstacle : staticObstacles) {
-            Shape shape = transform.createTransformedShape(obstacle.getRect());
-            g2.fill(shape);
-        }
-
-        // Draw all the moveable obstacles
-        g2.setColor(Color.GREEN);
-        for (Box obstacle : moveableObstacles) {
-            Shape shape = transform.createTransformedShape(obstacle.getRect());
-            g2.fill(shape);
-        }
-
         // Draw the tree
         if (tree != null) {
             paintTreeNode(tree, g2);
+
+
+            TreeNode<MoveableBoxState, Action> obstacleNode = solutionNode == null ? tree : solutionNode;
+
+            // Draw all the static obstacles
+            g2.setColor(Color.BLACK);
+            for (Box obstacle : obstacleNode.getState().getStaticObstacles()) {
+                Shape shape = transform.createTransformedShape(obstacle.getRect());
+                g2.fill(shape);
+            }
+
+            // Draw all the moveable obstacles
+            g2.setColor(Color.GREEN);
+            for (Box obstacle : obstacleNode.getState().getMoveableObstacles()) {
+                Shape shape = transform.createTransformedShape(obstacle.getRect());
+                g2.fill(shape);
+            }
         }
 
         // Draw the solution
@@ -106,7 +94,7 @@ public class Visualiser extends JComponent {
      * @param node the node to draw
      * @param g2 graphics to paint into
      */
-    private void paintTreeNode(TreeNode<State, Action> node, Graphics2D g2) {
+    private void paintTreeNode(TreeNode<MoveableBoxState, Action> node, Graphics2D g2) {
         paintTreeNode(node, g2, 0, 0, false);
     }
 
@@ -120,7 +108,7 @@ public class Visualiser extends JComponent {
      * @param lastY parent node's y position
      * @param drawLine whether to draw a line to the parent or not
      */
-    private void paintTreeNode(TreeNode<State, Action> node, Graphics2D g2, int lastX, int lastY,
+    private void paintTreeNode(TreeNode<MoveableBoxState, Action> node, Graphics2D g2, int lastX, int lastY,
             boolean drawLine) {
         g2.setColor(drawLine ? Color.BLACK : Color.BLUE);
         g2.setStroke(new BasicStroke(drawLine ? 1 : 5));
@@ -154,7 +142,7 @@ public class Visualiser extends JComponent {
      * @param node the solution leaf node
      * @param g2 graphics to paint into
      */
-    private void paintSolutionNode(TreeNode<State, Action> node, Graphics2D g2) {
+    private void paintSolutionNode(TreeNode<MoveableBoxState, Action> node, Graphics2D g2) {
         paintSolutionNode(node, g2, 0, 0, false);
     }
 
@@ -167,7 +155,7 @@ public class Visualiser extends JComponent {
      * @param lastY y position of the last node
      * @param drawLine whether to draw a line to the last node or not
      */
-    private void paintSolutionNode(TreeNode<State, Action> node, Graphics2D g2, int lastX,
+    private void paintSolutionNode(TreeNode<MoveableBoxState, Action> node, Graphics2D g2, int lastX,
             int lastY, boolean drawLine) {
         g2.setColor(Color.RED);
         g2.setStroke(new BasicStroke(5));
@@ -199,7 +187,7 @@ public class Visualiser extends JComponent {
      *
      * @param solutionNode the leaf node to start from
      */
-    public void paintSolution(TreeNode<State, Action> solutionNode) {
+    public void paintSolution(TreeNode<MoveableBoxState, Action> solutionNode) {
         this.solutionNode = solutionNode;
         repaint();
     }
