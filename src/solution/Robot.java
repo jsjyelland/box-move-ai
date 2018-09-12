@@ -35,7 +35,7 @@ public class Robot {
      * @param width the width of the robot
      */
     public Robot(Point2D pos, double theta, double width) {
-        this.pos = (Point2D) pos.clone();
+        this.pos = pos;
         this.theta = theta;
         this.width = width;
     }
@@ -163,14 +163,13 @@ public class Robot {
     public boolean isValid(ArrayList<Box> staticObstacles) {
         // Check if the robot is inside the workspace
         Rectangle2D boundingRectangle = new Rectangle2D.Double(0, 0, 1, 1);
-        if (!boundingRectangle.contains(getX1(), getY1()) ||
-                    !boundingRectangle.contains(getX2(), getY2())) {
+        if (!boundingRectangle.contains(getLine().getBounds2D())) {
             return false;
         }
 
         // Check if the robot collides with any static obstacles
         for (Box box : staticObstacles) {
-            if (box.getRect().intersectsLine(getX1(), getY1(), getX2(), getY2())) {
+            if (box.getRect().intersectsLine(getLine())) {
                 return false;
             }
         }

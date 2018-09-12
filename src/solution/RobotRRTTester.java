@@ -2,6 +2,7 @@ package solution;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 public class RobotRRTTester {
     public static void main(String[] args) {
@@ -31,6 +32,12 @@ public class RobotRRTTester {
                 System.out.println("Solution found");
                 break;
             }
+
+//            try {
+//                TimeUnit.MILLISECONDS.sleep(100);
+//            } catch (InterruptedException e) {
+//                System.out.println(e);
+//            }
 
             visualiser.paintTree(rrt.getTree());
         }

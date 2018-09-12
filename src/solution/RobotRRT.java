@@ -74,11 +74,11 @@ public class RobotRRT extends RRT<RobotState, RobotAction> {
             TreeNode<RobotState, RobotAction> node, RobotState state, boolean addChild)
             throws InvalidStateException {
         double nodeX = node.getState().getRobot().getPos().getX();
-        double nodeY = node.getState().getRobot().getPos().getX();
+        double nodeY = node.getState().getRobot().getPos().getY();
         double nodeTheta = node.getState().getRobot().getTheta();
 
         double stateX = state.getRobot().getPos().getX();
-        double stateY = state.getRobot().getPos().getX();
+        double stateY = state.getRobot().getPos().getY();
         double stateTheta = state.getRobot().getTheta();
 
         double dx = stateX - nodeX;

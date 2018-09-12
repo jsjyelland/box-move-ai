@@ -20,7 +20,7 @@ public class RobotVisualiser extends Visualiser<RobotState, RobotAction> {
     protected void paintTreeNode(TreeNode<RobotState, RobotAction> node, Graphics2D g2) {
         // Draw all the static obstacles
         g2.setColor(Color.BLACK);
-        for (Box obstacle : solutionNode.getState().getStaticObstacles()) {
+        for (Box obstacle : node.getState().getStaticObstacles()) {
             Shape shape = transform.createTransformedShape(obstacle.getRect());
             g2.fill(shape);
         }

@@ -47,10 +47,14 @@ public class RobotState extends State {
         // Step along the line, checking the robot configuration at each step
         for (double i = 1; i <= numSteps; i++) {
             // Move the robot by step size
-            newState.robot.move(i * stepSize * dx, i * stepSize * dy, i * stepSize * dtheta);
+            newState.robot.move(
+                    stepSize * dx,
+                    stepSize * dy,
+                    stepSize * dtheta
+            );
 
             // Check if this configuration is valid
-            if (!robot.isValid(staticObstacles)) {
+            if (!newState.robot.isValid(staticObstacles)) {
                 throw new InvalidStateException();
             }
         }
