@@ -48,9 +48,9 @@ public class RobotState extends State {
         for (double i = 1; i <= numSteps; i++) {
             // Move the robot by step size
             newState.robot.move(
-                    stepSize * dx,
-                    stepSize * dy,
-                    stepSize * dtheta
+                    (stepSize / distance) * dx,
+                    (stepSize / distance) * dy,
+                    (stepSize / distance) * dtheta
             );
 
             // Check if this configuration is valid

@@ -7,18 +7,16 @@ import java.util.concurrent.TimeUnit;
 public class RobotRRTTester {
     public static void main(String[] args) {
         // Create an RRT
-//        ArrayList<Box> initialStaticObstacles = new ArrayList<>(Arrays.asList(
-//                new Box(0.0, 0.0, 1, 0.1),
-//                new Box(0.1, 0.2, 0.9, 0.1),
-//                new Box(0.0, 0.4, 0.9, 0.1),
-//                new Box(0.2, 0.6, 0.9, 0.1),
-//                new Box(0.0, 0.8, 0.9, 0.1)
-//        ));
+        ArrayList<Box> initialStaticObstacles = new ArrayList<>(Arrays.asList(
+                new Box(0.1, 0.2, 0.9, 0.1),
+                new Box(0.0, 0.4, 0.9, 0.1),
+                new Box(0.2, 0.6, 0.9, 0.1)
+        ));
 
         RobotRRT rrt = new RobotRRT(
-                new ArrayList<>(),
-                new Robot(0.3, 0.3, 0, 0.05),
-                new Robot(0.5, 0.5, 0, 0.05)
+                initialStaticObstacles,
+                new Robot(0.9, 0.05, 0, 0.04),
+                new Robot(0.05, 0.95, 0, 0.04)
         );
 
         // Create the visualizer
