@@ -30,6 +30,10 @@ public abstract class RRT<T extends State, U> {
     protected TreeNode<T, U> solutionNode = null;
 
     /**
+     * The visualiser attached to this RRT.
+     */
+
+    /**
      * Construct an RRT
      */
     public RRT() {
@@ -69,6 +73,14 @@ public abstract class RRT<T extends State, U> {
                 return checkSolution(newNode);
             } catch (InvalidStateException e) {
                 // If this happens, try again. Means the new state is in collision
+            }
+        }
+    }
+
+    public void solve() {
+        while(true) {
+            if (expand()) {
+
             }
         }
     }
