@@ -45,9 +45,10 @@ public class MoveableBoxAction {
      * Move moveable obstacles out of the way
      *
      * @param solutionNodes the solutions of the trees above
+     * @param attachVisualisers whether to attach visualisers to the moveable obstacle RRTs.
      */
     public void moveBoxesOutOfPath(
-            ArrayList<TreeNode<MoveableBoxState, MoveableBoxAction>> solutionNodes) {
+            ArrayList<TreeNode<MoveableBoxState, MoveableBoxAction>> solutionNodes, boolean attachVisualisers) {
         TreeNode<MoveableBoxState, MoveableBoxAction> topLevelSolution =
                 solutionNodes.get(solutionNodes.size() - 1);
         ArrayList<MoveableBox> boxesToMove = new ArrayList<>();
@@ -75,8 +76,15 @@ public class MoveableBoxAction {
                     solutionNodes
             );
 
+            // Attach a visualiser if it is required
+            if (attachVisualisers) {
+                Visualiser visualiser = new MoveableBoxVisualiser();
+                Window window = new Window(visualiser);
+                obstacleRRT.attachVisualiser(visualiser);
+            }
+
             // Solve the RRT
-            while (!obstacleRRT.expand());
+            obstacleRRT.solve();
 
             // Get the solution
             TreeNode<MoveableBoxState, MoveableBoxAction> solution = obstacleRRT.getSolution();

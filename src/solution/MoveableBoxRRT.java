@@ -132,7 +132,8 @@ public abstract class MoveableBoxRRT extends RRT<MoveableBoxState, MoveableBoxAc
         TreeNode<MoveableBoxState, MoveableBoxAction> currentNode = solutionNode;
 
         while (currentNode.getParent() != null) {
-            currentNode.getAction().moveBoxesOutOfPath(getSolutionLeaves());
+            // Move the moveable obstacles out of the way, and attach a visualiser if this RRT has one attached.
+            currentNode.getAction().moveBoxesOutOfPath(getSolutionLeaves(), visualiserAttached);
             currentNode = currentNode.getParent();
         }
     }

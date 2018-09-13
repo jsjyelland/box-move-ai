@@ -23,21 +23,12 @@ public class RobotRRTTester {
         RobotVisualiser visualiser = new RobotVisualiser();
         Window window = new Window(visualiser);
 
-        // Loop until a solution is found
-        while (true) {
-            if (rrt.expand()) {
-                visualiser.paintSolution(rrt.getSolution());
-                System.out.println("Solution found");
-                break;
-            }
+        // Attach it to the RRT.
+        rrt.attachVisualiser(visualiser);
 
-//            try {
-//                TimeUnit.MILLISECONDS.sleep(100);
-//            } catch (InterruptedException e) {
-//                System.out.println(e);
-//            }
+        // Solve the rrt
+        rrt.solve();
 
-            visualiser.paintTree(rrt.getTree());
-        }
+        System.out.println("Solution found");
     }
 }

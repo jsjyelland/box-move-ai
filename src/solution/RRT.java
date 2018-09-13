@@ -32,6 +32,12 @@ public abstract class RRT<T extends State, U> {
     /**
      * The visualiser attached to this RRT.
      */
+    public Visualiser visualiser;
+
+    /**
+     * Whether this RRT has a visualiser attached.
+     */
+    protected boolean visualiserAttached = false;
 
     /**
      * Construct an RRT
@@ -77,10 +83,21 @@ public abstract class RRT<T extends State, U> {
         }
     }
 
+    /**
+     * Solve this rrt. If a visualiser is attached, the solution will be drawn on it.
+     */
     public void solve() {
-        while(true) {
+        // TODO add a timeout after nodes ArrayList contains > x amount of nodes, either throw exception or return false
+        while (true) {
             if (expand()) {
+                if (visualiserAttached) {
+                    visualiser.paintSolution(solutionNode);
+                }
+                break;
+            }
 
+            if (visualiserAttached) {
+                visualiser.paintTree(tree);
             }
         }
     }
@@ -91,6 +108,15 @@ public abstract class RRT<T extends State, U> {
      * @return if a solution is found or not
      */
     protected abstract boolean checkSolution(TreeNode<T, U> newestNode);
+
+    /**
+     * Attach a visualiser to this RRT.
+     * @param visualiser the visualiser to attach
+     */
+    public void attachVisualiser(Visualiser visualiser) {
+        this.visualiser = visualiser;
+        visualiserAttached = true;
+    }
 
     /**
      * Find the nearest node in the tree to a given state. Uses straight line distance

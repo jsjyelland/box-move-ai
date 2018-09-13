@@ -65,12 +65,6 @@ public class MoveableObstacleRRT extends MoveableBoxRRT {
 
         moveMoveableObstacles();
 
-        Visualiser visualiser = new MoveableBoxVisualiser();
-        Window window = new Window(visualiser);
-
-        visualiser.paintTree(getTree());
-        visualiser.paintSolution(solutionNode);
-
         // No collisions
         return true;
     }
