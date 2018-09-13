@@ -29,18 +29,18 @@ public class RobotState extends State {
      *
      * @param dx x distance to move robot by
      * @param dy y distance to move robot by
-     * @param dtheta amount to rotate robot by
+     * @param newTheta the new theta value for the robot to move to
      *
      * @return a new node containing the new state and the action to get to this state
      *
      * @throws InvalidStateException if the new state is invalid
      */
-    public TreeNode<RobotState, RobotAction> action(double dx, double dy, double dtheta)
+    public TreeNode<RobotState, RobotAction> action(double dx, double dy, double newTheta)
             throws InvalidStateException {
         // Clone this state
         RobotState newState = clone();
 
-        double distance = distanceWithDelta(dx, dy, dtheta);
+        double distance = distanceWithNewTheta(dx, dy, newTheta);
         double numSteps = ceil(distance / 0.001);
         double stepSize = distance / numSteps;
 
@@ -48,9 +48,9 @@ public class RobotState extends State {
         for (double i = 1; i <= numSteps; i++) {
             // Move the robot by step size
             newState.robot.move(
-                    (stepSize / distance) * dx,
-                    (stepSize / distance) * dy,
-                    (stepSize / distance) * dtheta
+                    dx / numSteps,
+                    dy / numSteps,
+                    (newTheta - robot.getTheta()) /numSteps
             );
 
             // Check if this configuration is valid
@@ -60,7 +60,7 @@ public class RobotState extends State {
         }
 
         // Create and return a new node with this new state
-        return new TreeNode<>(newState, new RobotAction(dx, dy, dtheta));
+        return new TreeNode<>(newState, new RobotAction(dx, dy, (newTheta - robot.getTheta())));
     }
 
     /**
@@ -86,17 +86,19 @@ public class RobotState extends State {
     }
 
     /**
-     * Calculate the distance of a change in x, y, and theta. This represents the euclidean distance
-     * on a 3D graph of x, y and theta.
+     * Calculate the distance of a change in x, y, and theta. This represents maximum distance the ends of the robot will have to move
      *
      * @param dx change in x
      * @param dy change in y
-     * @param dtheta change in theta
+     * @param newTheta new value of theta
      *
      * @return the distance
      */
-    private double distanceWithDelta(double dx, double dy, double dtheta) {
-        return sqrt(pow(dx, 2) + pow(dy, 2) + pow(dtheta, 2));
+    private double distanceWithNewTheta(double dx, double dy, double newTheta) {
+        double deltaCos = cos(newTheta) - cos(robot.getTheta());
+        double deltaSin = sin(newTheta) - sin(robot.getTheta());
+        return sqrt(max(pow(dx - robot.getWidth() * deltaCos, 2) + pow(dy - robot.getWidth() * deltaSin, 2),
+                pow(dx + robot.getWidth() * deltaCos, 2) + pow(dy + robot.getWidth() * deltaSin, 2)));
     }
 
     /**
@@ -112,10 +114,10 @@ public class RobotState extends State {
         if (other instanceof RobotState) {
             RobotState robotState = (RobotState) other;
 
-            return distanceWithDelta(
+            return distanceWithNewTheta(
                     robot.getPos().getX() - robotState.getRobot().getPos().getX(),
                     robot.getPos().getY() - robotState.getRobot().getPos().getY(),
-                    robot.getTheta() - robotState.getRobot().getTheta()
+                    robotState.getRobot().getTheta()
             );
         } else {
             return -1;
