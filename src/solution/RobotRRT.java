@@ -24,10 +24,20 @@ public class RobotRRT extends RRT<RobotState, RobotAction> {
      *
      * @param staticObstacles the static obstacles
      * @param initialRobot the initial robot
+     * @param boxToPush the box the robot is pushing
      */
-    public RobotRRT(ArrayList<Box> staticObstacles, Robot initialRobot, Robot goalRobot) {
+    public RobotRRT(ArrayList<Box> staticObstacles, Robot initialRobot, Robot goalRobot,
+            Box boxToPush)
+            throws NoPathException {
+        if (!initialRobot.isValid(staticObstacles) || !goalRobot.isValid(staticObstacles)) {
+            throw new NoPathException();
+        }
+
         this.initialRobot = initialRobot;
         this.goalRobot = goalRobot;
+
+        staticObstacles = new ArrayList<>(staticObstacles);
+        staticObstacles.add(boxToPush);
 
         // Make an initial tree
         tree = new TreeNode<>(new RobotState(initialRobot, staticObstacles), null);

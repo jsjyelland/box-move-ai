@@ -18,10 +18,11 @@ public class GoalBoxRRT extends MoveableBoxRRT {
      * @param staticObstacles the static obstacles
      * @param initialBox the initial box
      * @param goalBox the goal box
+     * @param robotWidth the width of the robot
      */
     public GoalBoxRRT(ArrayList<Box> staticObstacles, ArrayList<MoveableBox> moveableObstacles,
-            MoveableBox initialBox, MoveableBox goalBox) {
-        super(staticObstacles, moveableObstacles, initialBox);
+            MoveableBox initialBox, MoveableBox goalBox, double robotWidth) {
+        super(staticObstacles, moveableObstacles, initialBox, robotWidth);
         this.goalBox = goalBox;
     }
 
@@ -33,7 +34,8 @@ public class GoalBoxRRT extends MoveableBoxRRT {
      * @return whether the solution is valid or not
      */
     @Override
-    protected boolean checkSolution(TreeNode<MoveableBoxState, MoveableBoxAction> newestNode) {
+    protected boolean checkMoveableBoxPath(
+            TreeNode<MoveableBoxState, MoveableBoxAction> newestNode) {
         try {
             // Try to connect to the goal
             solutionNode = connectNodeToState(newestNode, new MoveableBoxState(
@@ -41,8 +43,6 @@ public class GoalBoxRRT extends MoveableBoxRRT {
                     newestNode.getState().getStaticObstacles(),
                     newestNode.getState().getMoveableObstacles()
             ), true);
-
-            moveMoveableObstacles();
 
             return true;
         } catch (InvalidStateException e) {

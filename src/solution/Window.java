@@ -1,9 +1,7 @@
 package solution;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.border.EtchedBorder;
-import javax.swing.BorderFactory;
 import java.awt.BorderLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -16,7 +14,7 @@ public class Window {
      * Construct a window with a visualisation
      * @param visualiser the visualisation to display
      */
-    public Window(Visualiser visualiser) {
+    public Window(JComponent visualiser) {
         // Create a window frame
         JFrame frame = new JFrame("Tree Visualiser");
         frame.setSize(700, 766);

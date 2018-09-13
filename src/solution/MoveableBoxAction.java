@@ -1,6 +1,10 @@
 package solution;
 
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
+
+import static java.lang.Math.PI;
+import static java.lang.Math.signum;
 
 /**
  * Information about a transition between states
@@ -12,33 +16,32 @@ public class MoveableBoxAction {
     private ArrayList<TreeNode<MoveableBoxState, MoveableBoxAction>> moveableBoxSolutionNodes;
 
     /**
-     * The x distance moved
+     * The initial state of the box
      */
-    private double dx;
+    private Box initialBox;
 
     /**
-     * The y distance moved
+     * The final state of the box
      */
-    private double dy;
+    private Box finalBox;
 
     /**
-     * The bounding box representing the movement
+     * The path for the movement of the robot to the beginning of this action
      */
-    private Box movementBox;
+    private ArrayList<RobotAction> robotPath;
 
     /**
      * Construct an action
      *
-     * @param movementBox the bounding box representing the movement
-     * @param dx distance moved in the x direction
-     * @param dy distance moved in the y direction
+     * @param initialBox the initial state of the box
+     * @param finalBox the final state of the box
      */
-    public MoveableBoxAction(Box movementBox, double dx, double dy) {
-        this.dx = dx;
-        this.dy = dy;
-        this.movementBox = movementBox;
+    public MoveableBoxAction(Box initialBox, Box finalBox) {
+        this.initialBox = initialBox;
+        this.finalBox = finalBox;
 
         moveableBoxSolutionNodes = new ArrayList<>();
+        robotPath = new ArrayList<>();
     }
 
     /**
@@ -46,16 +49,22 @@ public class MoveableBoxAction {
      *
      * @param solutionNodes the solutions of the trees above
      * @param attachVisualisers whether to attach visualisers to the moveable obstacle RRTs.
+     * @param robotWidth the width of the robot
+     *
+     * @return a list of robot actions to perform this move
+     *
+     * @throws NoPathException if this cannot be done
      */
-    public void moveBoxesOutOfPath(
-            ArrayList<TreeNode<MoveableBoxState, MoveableBoxAction>> solutionNodes, boolean attachVisualisers) {
+    public ArrayList<RobotAction> moveBoxesOutOfPath(
+            ArrayList<TreeNode<MoveableBoxState, MoveableBoxAction>> solutionNodes,
+            boolean attachVisualisers, double robotWidth) throws NoPathException {
         TreeNode<MoveableBoxState, MoveableBoxAction> topLevelSolution =
                 solutionNodes.get(solutionNodes.size() - 1);
         ArrayList<MoveableBox> boxesToMove = new ArrayList<>();
 
         for (MoveableBox moveableObstacle :
                 new ArrayList<>(topLevelSolution.getState().getMoveableObstacles())) {
-            if (moveableObstacle.intersects(movementBox)) {
+            if (moveableObstacle.intersects(getMovementBox())) {
                 boxesToMove.add(moveableObstacle);
                 topLevelSolution.getState().removeMoveableObstacle(moveableObstacle);
             }
@@ -63,17 +72,22 @@ public class MoveableBoxAction {
 
         // Make sure there are boxes to move
         if (boxesToMove.size() == 0) {
-            return;
+            // No actions required
+            return new ArrayList<>();
         }
+
+        ArrayList<RobotAction> robotPath = new ArrayList<>();
+        Robot previousRobotPosition = null;
 
         // Move each box out of the way
         for (MoveableBox box : boxesToMove) {
             // Create an RRT to move the box out of the way
             MoveableObstacleRRT obstacleRRT = new MoveableObstacleRRT(
-                    solutionNodes.get(0).getState().getStaticObstacles(),
-                    solutionNodes.get(0).getState().getMoveableObstacles(),
+                    topLevelSolution.getState().getStaticObstacles(),
+                    topLevelSolution.getState().getMoveableObstacles(),
                     box,
-                    solutionNodes
+                    solutionNodes,
+                    robotWidth
             );
 
             // Attach a visualiser if it is required
@@ -84,21 +98,52 @@ public class MoveableBoxAction {
             }
 
             // Solve the RRT
-            obstacleRRT.solve();
+            if (obstacleRRT.solve()) {
+                ArrayList<RobotAction> obstacleRobotPath = obstacleRRT.getRobotPath();
 
-            // Get the solution
-            TreeNode<MoveableBoxState, MoveableBoxAction> solution = obstacleRRT.getSolution();
+                if (previousRobotPosition != null) {
+                    // Move the robot from the end of the last moveable obstacle path to the beginning
+                    // of the next
+                    RobotRRT rrt = new RobotRRT(
+                            topLevelSolution.getState().getStaticObstacles(),
+                            previousRobotPosition,
+                            obstacleRobotPath.get(0).getInitialRobot(),
+                            obstacleRRT.getInitialBox()
+                    );
 
-            // Add the solution to the list
-            moveableBoxSolutionNodes.add(0, solution);
+                    if (rrt.solve()) {
+                        // Add the path to get to the start of the box moving path, and the box moving
+                        // path
+                        robotPath.addAll(rrt.getSolution().actionPathFromRoot());
+                        robotPath.addAll(obstacleRobotPath);
+                    } else {
+                        throw new NoPathException();
+                    }
+                }
 
-            // Make a new Box to represent the position of the moved box,
-            // now as a static obstacle
-            Box newBox = new Box(solution.getState().getMainBox().getRect());
+                // Set the previous robot position to the end of the latest path
+                previousRobotPosition = obstacleRobotPath.get(
+                        obstacleRobotPath.size() - 1
+                ).getFinalRobot();
 
-            // Make the moveable obstacle static
-            topLevelSolution.getState().addStaticObstacle(newBox);
+                // Get the solution
+                TreeNode<MoveableBoxState, MoveableBoxAction> solution = obstacleRRT.getSolution();
+
+                // Add the solution to the list
+                moveableBoxSolutionNodes.add(0, solution);
+
+                // Make a new Box to represent the position of the moved box,
+                // now as a static obstacle
+                Box newBox = new Box(solution.getState().getMainBox().getRect());
+
+                // Make the moveable obstacle static
+                topLevelSolution.getState().addStaticObstacle(newBox);
+            } else {
+                throw new NoPathException();
+            }
         }
+
+        return robotPath;
     }
 
     /**
@@ -107,7 +152,7 @@ public class MoveableBoxAction {
      * @return the x distance moved
      */
     public double getDx() {
-        return dx;
+        return finalBox.getRect().getX() - initialBox.getRect().getX();
     }
 
     /**
@@ -116,7 +161,7 @@ public class MoveableBoxAction {
      * @return the y distance moved
      */
     public double getDy() {
-        return dy;
+        return finalBox.getRect().getY() - initialBox.getRect().getY();
     }
 
     /**
@@ -134,6 +179,100 @@ public class MoveableBoxAction {
      * @return the movement box
      */
     public Box getMovementBox() {
-        return movementBox;
+        return initialBox.union(finalBox);
+    }
+
+    /**
+     * Get the position of the robot required to initiate pushing the box
+     *
+     * @return the initial position of the robot
+     */
+    public Robot getRobotPushingPosition(double width) {
+        return new Robot(
+                new Point2D.Double(
+                        initialBox.getRect().getCenterX() +
+                                -signum(getDx()) * (initialBox.getRect().getWidth() / 2),
+                        initialBox.getRect().getCenterY() +
+                                -signum(getDy()) * (initialBox.getRect().getHeight() / 2)
+                ),
+                getDx() == 0 ? 0 : PI / 2,
+                width
+        );
+    }
+
+    /**
+     * Get the position of the robot after the push
+     *
+     * @return the final position of the robot
+     */
+    public Robot getFinalRobotPosition(double width) {
+        Robot initialRobot = getRobotPushingPosition(width);
+        initialRobot.move(getDx(), getDy(), 0);
+        return initialRobot;
+    }
+
+    /**
+     * Calculate the path for the robot to move to get to the start of this action and push the box.
+     * If previousRobotPosition is null, the path will only contain the action to push the box.
+     *
+     * @param staticObstacles the static obstacles to avoid
+     * @param previousRobotPosition the starting position of the robot
+     * @param robotWidth the width of the robot
+     *
+     * @throws NoPathException if no path could be found
+     */
+    public void solveRobotPath(ArrayList<Box> staticObstacles,
+            Robot previousRobotPosition, double robotWidth) throws NoPathException {
+        Robot pushingPosition = getRobotPushingPosition(robotWidth);
+
+        if (previousRobotPosition != null) {
+            // Create an RRT for the robot
+            RobotRRT rrt = new RobotRRT(staticObstacles, previousRobotPosition, pushingPosition,
+                    initialBox
+            );
+
+//            Visualiser visualiser = new RobotVisualiser();
+//            Window window = new Window(visualiser);
+//            rrt.attachVisualiser(visualiser);
+
+            // Solve the rrt
+            if (rrt.solve()) {
+                robotPath = rrt.getSolution().actionPathFromRoot();
+            } else {
+                // No path found
+                throw new NoPathException();
+            }
+        }
+
+        // Add the action that moves the box
+        robotPath.add(new RobotAction(pushingPosition, getFinalRobotPosition(robotWidth), true, initialBox));
+    }
+
+    /**
+     * Gets the path of robot actions to move the robot from the previous position to the start of
+     * this action and to push the box. Index 0 is the start of the path.
+     *
+     * @return the path of robot actions
+     */
+    public ArrayList<RobotAction> getRobotPath() {
+        return robotPath;
+    }
+
+    /**
+     * Get the final state of the box
+     *
+     * @return the final state of the box
+     */
+    public Box getFinalBox() {
+        return finalBox;
+    }
+
+    /**
+     * Get the initial state of the box
+     *
+     * @return the initial state of the box
+     */
+    public Box getInitialBox() {
+        return initialBox;
     }
 }

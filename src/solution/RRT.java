@@ -12,7 +12,12 @@ public abstract class RRT<T extends State, U> {
     /**
      * Max distance a node can randomly expand doing RRT
      */
-    private static double MAX_DISTANCE = 0.5;
+    private static double MAX_DISTANCE = 0.3;
+
+    /**
+     * Max number of nodes before exiting search
+     */
+    private static int MAX_NODES = 10000;
 
     /**
      * The tree of states
@@ -33,11 +38,6 @@ public abstract class RRT<T extends State, U> {
      * The visualiser attached to this RRT.
      */
     public Visualiser visualiser;
-
-    /**
-     * Whether this RRT has a visualiser attached.
-     */
-    protected boolean visualiserAttached = false;
 
     /**
      * Construct an RRT
@@ -86,24 +86,36 @@ public abstract class RRT<T extends State, U> {
     /**
      * Solve this rrt. If a visualiser is attached, the solution will be drawn on it.
      */
-    public void solve() {
-        // TODO add a timeout after nodes ArrayList contains > x amount of nodes, either throw exception or return false
-        while (true) {
-            if (expand()) {
-                if (visualiserAttached) {
-                    visualiser.paintSolution(solutionNode);
-                }
-                break;
+    public boolean solve() {
+        if (checkSolution(tree)) {
+            if (visualiserAttached()) {
+                visualiser.paintSolution(solutionNode);
             }
 
-            if (visualiserAttached) {
+            return true;
+        }
+
+        while (nodes.size() <= MAX_NODES) {
+            if (expand()) {
+                if (visualiserAttached()) {
+                    visualiser.paintSolution(solutionNode);
+                }
+
+                return true;
+            }
+
+            if (visualiserAttached()) {
                 visualiser.paintTree(tree);
             }
         }
+
+        return false;
     }
 
     /**
      * Check to see if the current tree has a solution
+     *
+     *
      *
      * @return if a solution is found or not
      */
@@ -111,11 +123,11 @@ public abstract class RRT<T extends State, U> {
 
     /**
      * Attach a visualiser to this RRT.
+     *
      * @param visualiser the visualiser to attach
      */
     public void attachVisualiser(Visualiser visualiser) {
         this.visualiser = visualiser;
-        visualiserAttached = true;
     }
 
     /**
@@ -188,4 +200,13 @@ public abstract class RRT<T extends State, U> {
      * @return the new state
      */
     protected abstract T newRandomState();
+
+    /**
+     * Whether this rrt has a visualiser attached
+     *
+     * @return true if visualiser != null, false otherwise
+     */
+    public boolean visualiserAttached() {
+        return visualiser != null;
+    }
 }

@@ -24,7 +24,8 @@ public class MoveableBoxRRTTester {
                 initialStaticObstacles,
                 initialMoveableObstacles,
                 new MoveableBox(0.9, 0.125, 0.05),
-                new MoveableBox(0.0, 0.9, 0.05)
+                new MoveableBox(0.0, 0.9, 0.05),
+                0.05
         );
 
         // Create the visualizer
@@ -35,8 +36,11 @@ public class MoveableBoxRRTTester {
         rrt.attachVisualiser(visualiser);
 
         // Solve the rrt
-        rrt.solve();
+        System.out.println(rrt.solve());
 
-        System.out.println("Solution found");
+        ArrayList<RobotAction> actionPath = rrt.getRobotPath();
+
+        RobotActionVisualiser visualiser1 = new RobotActionVisualiser(actionPath);
+        Window window1 = new Window(visualiser1);
     }
 }

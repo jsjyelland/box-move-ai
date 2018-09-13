@@ -69,7 +69,9 @@ public class MoveableBoxState extends State {
         }
 
         // Create and return a new node with this new state and an action
-        return new TreeNode<>(newState, new MoveableBoxAction(union, dx, dy));
+        return new TreeNode<>(newState, new MoveableBoxAction(
+                mainBox, newState.mainBox
+        ));
     }
 
     /**

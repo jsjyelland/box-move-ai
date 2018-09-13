@@ -1,5 +1,6 @@
 package solution;
 
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -163,7 +164,8 @@ public class Robot {
     public boolean isValid(ArrayList<Box> staticObstacles) {
         // Check if the robot is inside the workspace
         Rectangle2D boundingRectangle = new Rectangle2D.Double(0, 0, 1, 1);
-        if (!boundingRectangle.contains(getLine().getBounds2D())) {
+        if (!boundingRectangle.contains(getLine().getP1()) ||
+                    !boundingRectangle.contains(getLine().getP2())) {
             return false;
         }
 
@@ -177,9 +179,28 @@ public class Robot {
         return true;
     }
 
+    /**
+     * Move the robot
+     *
+     * @param dx change in x
+     * @param dy change in y
+     * @param dtheta change in theta
+     */
     public void move(double dx, double dy, double dtheta) {
         pos.setLocation(pos.getX() + dx, pos.getY() + dy);
         theta += dtheta;
+    }
+
+    /**
+     * Set the position and angle of the robot
+     *
+     * @param x x position
+     * @param y y position
+     * @param theta angle
+     */
+    public void set(double x, double y, double theta) {
+        pos.setLocation(x, y);
+        this.theta = theta;
     }
 
     /**
@@ -208,7 +229,21 @@ public class Robot {
         return new Robot((Point2D) pos.clone(), theta, width);
     }
 
+    /**
+     * Get a Line2D object representing the robot
+     *
+     * @return a Line2D representation of the robot
+     */
     public Line2D getLine() {
         return new Line2D.Double(getP1(), getP2());
+    }
+
+    /**
+     * Get a bounding circle
+     *
+     * @return a bounding circle
+     */
+    public Ellipse2D getCircleBounds() {
+        return new Ellipse2D.Double(getX(), getY(), width, width);
     }
 }

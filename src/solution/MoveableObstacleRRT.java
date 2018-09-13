@@ -7,22 +7,24 @@ import java.util.ArrayList;
  */
 public class MoveableObstacleRRT extends MoveableBoxRRT {
     /**
-     * The list of solution leaf nodes up to the top level RRT.
-     * Index of 0 means deepest solution.
+     * The list of solution leaf nodes up to the top level RRT. Index of 0 means deepest solution.
      */
     private ArrayList<TreeNode<MoveableBoxState, MoveableBoxAction>> solutionLeaves;
 
     /**
      * Construct a MoveableObstacleRRT
      *
-     * @param staticObstacles the static obstacles
      * @param initialBox the initial box
-     * @param solutionLeaves the leaf of the top level solution. This is the path to avoid
+     * @param staticObstacles the static obstacles to avoid
+     * @param moveableObstacles the moveable obstacles
+     * @param solutionLeaves the solution leaves. These are the paths to avoid.
+     * @param robotWidth the width of the robot
      */
     public MoveableObstacleRRT(ArrayList<Box> staticObstacles,
             ArrayList<MoveableBox> moveableObstacles, MoveableBox initialBox,
-            ArrayList<TreeNode<MoveableBoxState, MoveableBoxAction>> solutionLeaves) {
-        super(staticObstacles, moveableObstacles, initialBox);
+            ArrayList<TreeNode<MoveableBoxState, MoveableBoxAction>> solutionLeaves,
+            double robotWidth) {
+        super(staticObstacles, moveableObstacles, initialBox, robotWidth);
 
         this.solutionLeaves = solutionLeaves;
     }
@@ -36,9 +38,10 @@ public class MoveableObstacleRRT extends MoveableBoxRRT {
      * @return whether the solution is valid or not
      */
     @Override
-    protected boolean checkSolution(TreeNode<MoveableBoxState, MoveableBoxAction> newestNode) {
-        // Start at the current leaf
+    protected boolean checkMoveableBoxPath(
+            TreeNode<MoveableBoxState, MoveableBoxAction> newestNode) {
         for (TreeNode<MoveableBoxState, MoveableBoxAction> solutionLeaf : solutionLeaves) {
+            // Start at the current leaf
             TreeNode<MoveableBoxState, MoveableBoxAction> currentNode = solutionLeaf;
 
             // Move up the tree to the root
@@ -63,15 +66,13 @@ public class MoveableObstacleRRT extends MoveableBoxRRT {
         // for this list, index 0 means deepest solution.
         solutionLeaves.add(0, solutionNode);
 
-        moveMoveableObstacles();
-
         // No collisions
         return true;
     }
 
     /**
-     * Gets a list of the leaf nodes of all solutions including parent RRTs.
-     * Array index 0 is the deepest level. Increasing index means decreasing deepness.
+     * Gets a list of the leaf nodes of all solutions including parent RRTs. Array index 0 is the
+     * deepest level. Increasing index means decreasing deepness.
      *
      * @return the list of solution leaf nodes
      */
