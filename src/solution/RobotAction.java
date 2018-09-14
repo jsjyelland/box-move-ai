@@ -1,5 +1,9 @@
 package solution;
 
+import static java.lang.Math.PI;
+import static solution.Utility.angleBetween;
+import static solution.Utility.smallestAngleBetween;
+
 /**
  * An action the robot takes to move from one position to another
  */
@@ -85,7 +89,9 @@ public class RobotAction {
      * @return the change in theta
      */
     public double getDtheta() {
-        return finalRobot.getTheta() - initialRobot.getTheta();
+        double smallestAngle = smallestAngleBetween(finalRobot.getTheta(), initialRobot.getTheta());
+        double dtheta = angleBetween(initialRobot.getTheta(), finalRobot.getTheta()) < PI ? smallestAngle : -smallestAngle;
+        return dtheta;
     }
 
     /**
