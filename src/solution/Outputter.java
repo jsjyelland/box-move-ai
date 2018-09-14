@@ -51,6 +51,13 @@ public class Outputter {
 
         // Break the solution up into primitive steps
         ArrayList<RobotAction> robotPathPrimitive = new ArrayList<>();
+
+        ArrayList<MoveableBox> allBoxes = new ArrayList<>(initialGoalBoxes);
+        allBoxes.addAll(initialMoveableObstacles);
+
+        ArrayList<ArrayList<MoveableBox>> allBoxesList = new ArrayList<>();
+
+
         for (RobotAction action : robotPath) {
             double actionSize = action.getInitialRobot().distanceToOtherRobot(action.getFinalRobot());
             double numSteps = ceil(actionSize / 0.001);
@@ -67,24 +74,42 @@ public class Outputter {
                 // Create the new action object
                 RobotAction newAction = new RobotAction(newInitialRobot, newFinalRobot);
 
-                // Add the correct box, if the original action is pushing one
-                if (action.getBoxPushing() != null) {
-                    MoveableBox newBoxPushing = action.getBoxPushing().clone();
-                    newBoxPushing.move(i / numSteps * action.getDx(), i / numSteps * action.getDy());
-                    newAction.setBoxPushing(newBoxPushing);
+                // Clone allBoxes
+                ArrayList<MoveableBox> allBoxesDeepClone = new ArrayList<>();
+                for (MoveableBox box: allBoxes) {
+                    allBoxesDeepClone.add(box.clone());
                 }
+
+                // Modify allBoxesDeepCopy to correctly move a box if necessary then add to AllBoxesList
+                if (action.getBoxPushing() != null) {
+                    int boxPushedIndex = allBoxes.indexOf(
+                            action.getBoxPushing());
+                    try {
+                        MoveableBox boxPushed = allBoxesDeepClone.get(boxPushedIndex);
+                        boxPushed.move(i / numSteps * action.getDx(), i / numSteps * action.getDy());
+                    } catch (IndexOutOfBoundsException e) {
+                        System.out.println(allBoxes);
+                        System.out.println(action.getBoxPushing());
+                    }
+                }
+                allBoxesList.add(allBoxesDeepClone);
 
                 // Append it to the ArrayList
                 robotPathPrimitive.add(newAction);
-
-
             }
+            if (action.getBoxPushing() != null) {
+                int boxPushedIndex = allBoxes.indexOf(
+                        action.getBoxPushing());
+                try {
+                    MoveableBox boxPushed = allBoxes.get(boxPushedIndex);
+                    boxPushed.move(action.getDx(), action.getDy());
+                } catch (IndexOutOfBoundsException e) {
+                    System.out.println(allBoxes);
+                    System.out.println(action.getBoxPushing());
+                }
+            }
+
         }
-
-        // Initiate list of boxes in original and moved positions
-        ArrayList<MoveableBox> allBoxes = new ArrayList<>(initialGoalBoxes);
-        allBoxes.addAll(initialMoveableObstacles);
-
 
         // First line: number of steps
         bw.write(Integer.toString(robotPathPrimitive.size()));
@@ -103,25 +128,27 @@ public class Outputter {
 
             RobotAction primitiveAction = robotPathPrimitive.get(i);
 
+            ArrayList<MoveableBox> allBoxesSingle = allBoxesList.get(i);
+
             // Robot configuration
             bw.write(primitiveAction.getFinalRobot().getX() + " " + primitiveAction.getFinalRobot().getY() + " " + primitiveAction.getFinalRobot().getTheta() + " ");
 
             // Move a box if necessary
-            if (primitiveAction.getBoxPushing() != null) {
-                System.out.println(primitiveAction.getBoxPushing());
-                int boxPushedIndex = allBoxes.indexOf(primitiveAction.getBoxPushing());
-                try {
-                    MoveableBox boxPushed = allBoxes.get(boxPushedIndex);
-                    boxPushed.move(primitiveAction.getDx(), primitiveAction.getDy());
-//                    allBoxes.set(boxPushedIndex, action.getFinalBoxPushing());
-                } catch (IndexOutOfBoundsException e) {
-                    System.out.println(allBoxes);
-                    System.out.println(primitiveAction.getBoxPushing());
-                }
-            }
+//            if (primitiveAction.getBoxPushing() != null) {
+//                System.out.println(primitiveAction.getBoxPushing());
+//                int boxPushedIndex = allBoxes.indexOf(primitiveAction.getBoxPushing());
+//                try {
+//                    MoveableBox boxPushed = allBoxes.get(boxPushedIndex);
+//                    boxPushed.move(primitiveAction.getDx(), primitiveAction.getDy());
+////                    allBoxes.set(boxPushedIndex, action.getFinalBoxPushing());
+//                } catch (IndexOutOfBoundsException e) {
+//                    System.out.println(allBoxes);
+//                    System.out.println(primitiveAction.getBoxPushing());
+//                }
+//            }
 
             // Box configuration
-            for (MoveableBox box : allBoxes) {
+            for (MoveableBox box : allBoxesSingle) {
                 bw.write(" " + box.getRect().getCenterX() + " " + box.getRect().getCenterY());
             }
 
