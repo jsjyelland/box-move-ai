@@ -245,7 +245,7 @@ public class MoveableBoxAction {
         }
 
         // Add the action that moves the box
-        robotPath.add(new RobotAction(pushingPosition, getFinalRobotPosition(robotWidth), false, initialBox, finalBox));
+        robotPath.add(new RobotAction(pushingPosition, getFinalRobotPosition(robotWidth), false, initialBox));
     }
 
     /**

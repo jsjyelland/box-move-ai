@@ -69,7 +69,7 @@ public abstract class MoveableBoxRRT extends RRT<MoveableBoxState, MoveableBoxAc
                             getTopLevelSolution().getState().getStaticObstacles(),
                             robotPaths.get(robotPaths.size() - 1).getFinalRobot(),
                             robotPath.get(0).getInitialRobot(),
-                            robotPath.get(0).getInitialBoxPushing()
+                            robotPath.get(0).getBoxPushing()
                     );
 
                     if (rrt.solve()) {
@@ -234,7 +234,7 @@ public abstract class MoveableBoxRRT extends RRT<MoveableBoxState, MoveableBoxAc
                             getTopLevelSolution().getState().getStaticObstacles(),
                             previousRobotPosition,
                             obstacleRobotPath.get(0).getInitialRobot(),
-                            obstacleRobotPath.get(0).getInitialBoxPushing()
+                            obstacleRobotPath.get(0).getBoxPushing()
                     );
 
                     if (rrt.solve()) {

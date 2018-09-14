@@ -110,9 +110,9 @@ public class RobotVisualiser extends Visualiser<RobotState, RobotAction> {
         int nodeX = (int) transformedShape.getBounds().getCenterX();
         int nodeY = (int) transformedShape.getBounds().getCenterY();
 
-        if (node.getAction() != null && node.getAction().getInitialBoxPushing() != null) {
+        if (node.getAction() != null && node.getAction().getBoxPushing() != null) {
             Shape transformedShapeBox = transform.createTransformedShape(
-                    node.getAction().getInitialBoxPushing().getRect()
+                    node.getAction().getBoxPushing().getRect()
             );
 
             g2.setColor(Color.CYAN);
