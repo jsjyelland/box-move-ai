@@ -20,9 +20,14 @@ public class RobotAction {
     private boolean rotateFirst;
 
     /**
-     * The box the robot is pushing
+     * The initial box the robot is pushing
      */
-    private Box boxPushing;
+    private MoveableBox initialBoxPushing;
+
+    /**
+     * The final box the robot is pushing
+     */
+    private MoveableBox finalBoxPushing;
 
     /**
      * Construct a RobotAction
@@ -43,11 +48,14 @@ public class RobotAction {
      * @param initialRobot the initial state of the robot
      * @param finalRobot the final state of the robot
      * @param rotateFirst whether the robot should rotate before moving or not
-     * @param boxPushing the box the robot is pushing
+     * @param initialBoxPushing the initial box the robot is pushing
+     * @param finalBoxPushing the final box the robot is pushing
      */
-    public RobotAction(Robot initialRobot, Robot finalRobot, boolean rotateFirst, Box boxPushing) {
+    public RobotAction(Robot initialRobot, Robot finalRobot, boolean rotateFirst, MoveableBox initialBoxPushing, MoveableBox finalBoxPushing) {
         this(initialRobot, finalRobot, rotateFirst);
-        this.boxPushing = boxPushing;
+        this.initialBoxPushing = initialBoxPushing;
+        this.finalBoxPushing = finalBoxPushing;
+
     }
 
     /**
@@ -105,18 +113,34 @@ public class RobotAction {
     }
 
     /**
-     * Set the box the robot is pushing
-     * @param boxPushing the box the robot is pushing
+     * Set the initial box the robot is pushing
+     * @param initialBoxPushing the initial box the robot is pushing
      */
-    public void setBoxPushing(Box boxPushing) {
-        this.boxPushing = boxPushing;
+    public void setInitialBoxPushing(MoveableBox initialBoxPushing) {
+        this.initialBoxPushing = initialBoxPushing;
     }
 
     /**
-     * Get the box the robot is pushing
-     * @return the box the robot is pushing
+     * Set the final box the robot is pushing
+     * @param finalBoxPushing the initial box the robot is pushing
      */
-    public Box getBoxPushing() {
-        return boxPushing;
+    public void setFinalBoxPushing(MoveableBox finalBoxPushing) {
+        this.finalBoxPushing = finalBoxPushing;
+    }
+
+    /**
+     * Get the initial box the robot is pushing
+     * @return the initial box the robot is pushing
+     */
+    public MoveableBox getInitialBoxPushing() {
+        return initialBoxPushing;
+    }
+
+    /**
+     * Get the final box the robot is pushing
+     * @return the final box the robot is pushing
+     */
+    public MoveableBox getFinalBoxPushing() {
+        return finalBoxPushing;
     }
 }

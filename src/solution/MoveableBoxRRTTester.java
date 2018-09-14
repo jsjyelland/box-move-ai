@@ -1,5 +1,6 @@
 package solution;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -18,6 +19,10 @@ public class MoveableBoxRRTTester {
                 new MoveableBox(0.3, 0.31, 0.05),
                 new MoveableBox(0.5, 0.51, 0.05),
                 new MoveableBox(0.01, 0.6, 0.05)
+        ));
+
+        ArrayList<MoveableBox> initialGoalBoxes = new ArrayList<>(Arrays.asList(
+                new MoveableBox(0.9, 0.125, 0.05)
         ));
 
         GoalBoxRRT rrt = new GoalBoxRRT(
@@ -42,5 +47,12 @@ public class MoveableBoxRRTTester {
 
         RobotActionVisualiser visualiser1 = new RobotActionVisualiser(actionPath);
         Window window1 = new Window(visualiser1);
+
+        Outputter out = new Outputter(actionPath, initialMoveableObstacles, initialGoalBoxes);
+        try {
+            out.writeSolution("test.txt");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

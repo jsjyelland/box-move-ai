@@ -18,12 +18,12 @@ public class MoveableBoxAction {
     /**
      * The initial state of the box
      */
-    private Box initialBox;
+    private MoveableBox initialBox;
 
     /**
      * The final state of the box
      */
-    private Box finalBox;
+    private MoveableBox finalBox;
 
     /**
      * The path for the movement of the robot to the beginning of this action
@@ -36,7 +36,7 @@ public class MoveableBoxAction {
      * @param initialBox the initial state of the box
      * @param finalBox the final state of the box
      */
-    public MoveableBoxAction(Box initialBox, Box finalBox) {
+    public MoveableBoxAction(MoveableBox initialBox, MoveableBox finalBox) {
         this.initialBox = initialBox;
         this.finalBox = finalBox;
 
@@ -245,7 +245,7 @@ public class MoveableBoxAction {
         }
 
         // Add the action that moves the box
-        robotPath.add(new RobotAction(pushingPosition, getFinalRobotPosition(robotWidth), true, initialBox));
+        robotPath.add(new RobotAction(pushingPosition, getFinalRobotPosition(robotWidth), false, initialBox, finalBox));
     }
 
     /**
