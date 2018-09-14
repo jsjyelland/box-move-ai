@@ -61,17 +61,14 @@ public abstract class RRT<T extends State, U> {
                 // Get the nearest node to the new one
                 TreeNode<T, U> node = nearestNode(newRandomState);
 
-                // Configure the new state
-                newRandomState.configure(node);
-
                 // Make sure this is valid
-                newRandomState.validate();
+                validateState(newRandomState);
 
                 // Step towards the new random state up to MAX_DISTANCE
                 T newState = (T) node.getState().stepTowards(newRandomState, MAX_DISTANCE);
 
                 // Make sure this is valid still
-                newState.validate();
+                validateState(newState);
 
                 // Add the new state to the tree
                 TreeNode<T, U> newNode = connectNodeToState(node, newState, true);
@@ -114,8 +111,6 @@ public abstract class RRT<T extends State, U> {
 
     /**
      * Check to see if the current tree has a solution
-     *
-     *
      *
      * @return if a solution is found or not
      */
@@ -209,4 +204,13 @@ public abstract class RRT<T extends State, U> {
     public boolean visualiserAttached() {
         return visualiser != null;
     }
+
+    /**
+     * Validate a state
+     *
+     * @param state the state to validate
+     *
+     * @throws InvalidStateException if the state is invalid
+     */
+    protected abstract void validateState(T state) throws InvalidStateException;
 }

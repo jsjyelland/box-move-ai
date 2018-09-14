@@ -51,6 +51,7 @@ public class MoveableBox extends Box {
      *
      * @return the cloned box
      */
+    @Override
     public MoveableBox clone() {
         try {
             return new MoveableBox((Rectangle2D.Double) rect.clone());
@@ -59,13 +60,5 @@ public class MoveableBox extends Box {
             // If this object is valid, so will the clone
             return new MoveableBox(0, 0, 0);
         }
-    }
-
-    public Rectangle2D internalAreaApproximation() {
-        return new Rectangle2D.Double(rect.getX() + 0.001,
-                rect.getY() + 0.001,
-                rect.getWidth() - 0.002,
-                rect.getHeight() - 0.002
-        );
     }
 }

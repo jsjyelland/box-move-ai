@@ -15,16 +15,12 @@ public class MoveableObstacleRRT extends MoveableBoxRRT {
      * Construct a MoveableObstacleRRT
      *
      * @param initialBox the initial box
-     * @param staticObstacles the static obstacles to avoid
-     * @param moveableObstacles the moveable obstacles
+     * @param robotStartingPosition the starting position of the robot
      * @param solutionLeaves the solution leaves. These are the paths to avoid.
-     * @param robotWidth the width of the robot
      */
-    public MoveableObstacleRRT(ArrayList<Box> staticObstacles,
-            ArrayList<MoveableBox> moveableObstacles, MoveableBox initialBox,
-            ArrayList<TreeNode<MoveableBoxState, MoveableBoxAction>> solutionLeaves,
-            double robotWidth) {
-        super(staticObstacles, moveableObstacles, initialBox, robotWidth);
+    public MoveableObstacleRRT(MoveableBox initialBox, Robot robotStartingPosition,
+            ArrayList<TreeNode<MoveableBoxState, MoveableBoxAction>> solutionLeaves) {
+        super(initialBox, robotStartingPosition);
 
         this.solutionLeaves = solutionLeaves;
     }
@@ -62,9 +58,8 @@ public class MoveableObstacleRRT extends MoveableBoxRRT {
 
         solutionNode = newestNode;
 
-        // Add the solution to the solution leaves list. It's inserted at index 0 because
-        // for this list, index 0 means deepest solution.
-        solutionLeaves.add(0, solutionNode);
+        // Add the solution to the solution leaves list
+        solutionLeaves.add(solutionNode);
 
         // No collisions
         return true;
@@ -79,5 +74,25 @@ public class MoveableObstacleRRT extends MoveableBoxRRT {
     @Override
     protected ArrayList<TreeNode<MoveableBoxState, MoveableBoxAction>> getSolutionLeaves() {
         return solutionLeaves;
+    }
+
+    /**
+     * Push the box in the workspace
+     *
+     * @param boxToPush the box to push
+     */
+    @Override
+    protected void pushBoxInWorkspace(MoveableBox boxToPush) {
+        Workspace.getInstance().pushBox(boxToPush);
+    }
+
+    /**
+     * Finish pushing the box in the workspace
+     *
+     * @param newPosition the new position of the box
+     */
+    @Override
+    protected void finishPushBoxInWorkspace(MoveableBox newPosition) {
+        Workspace.getInstance().finishPush(newPosition);
     }
 }

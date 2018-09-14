@@ -11,11 +11,6 @@ import static java.lang.Math.signum;
  */
 public class MoveableBoxAction {
     /**
-     * The solution nodes of paths to move boxes out of the way
-     */
-    private ArrayList<TreeNode<MoveableBoxState, MoveableBoxAction>> moveableBoxSolutionNodes;
-
-    /**
      * The initial state of the box
      */
     private Box initialBox;
@@ -40,7 +35,6 @@ public class MoveableBoxAction {
         this.initialBox = initialBox;
         this.finalBox = finalBox;
 
-        moveableBoxSolutionNodes = new ArrayList<>();
         robotPath = new ArrayList<>();
     }
 
@@ -48,8 +42,8 @@ public class MoveableBoxAction {
      * Move moveable obstacles out of the way
      *
      * @param solutionNodes the solutions of the trees above
+     * @param previousRobotPosition the previous position of the robot
      * @param attachVisualisers whether to attach visualisers to the moveable obstacle RRTs.
-     * @param robotWidth the width of the robot
      *
      * @return a list of robot actions to perform this move
      *
@@ -57,16 +51,17 @@ public class MoveableBoxAction {
      */
     public ArrayList<RobotAction> moveBoxesOutOfPath(
             ArrayList<TreeNode<MoveableBoxState, MoveableBoxAction>> solutionNodes,
-            boolean attachVisualisers, double robotWidth) throws NoPathException {
-        TreeNode<MoveableBoxState, MoveableBoxAction> topLevelSolution =
-                solutionNodes.get(solutionNodes.size() - 1);
+            Robot previousRobotPosition,
+            boolean attachVisualisers) throws NoPathException {
+        Box movementBox = getMovementBox();
+
         ArrayList<MoveableBox> boxesToMove = new ArrayList<>();
 
-        for (MoveableBox moveableObstacle :
-                new ArrayList<>(topLevelSolution.getState().getMoveableObstacles())) {
-            if (moveableObstacle.intersects(getMovementBox())) {
+        // Check if any of the moveable obstacles intersect this movement
+        for (MoveableBox moveableObstacle : Workspace.getInstance().getMoveableObstacles()) {
+            if (moveableObstacle.intersects(movementBox)) {
+                Workspace.getInstance().markBoxNeedsMoving(moveableObstacle);
                 boxesToMove.add(moveableObstacle);
-                topLevelSolution.getState().removeMoveableObstacle(moveableObstacle);
             }
         }
 
@@ -77,17 +72,12 @@ public class MoveableBoxAction {
         }
 
         ArrayList<RobotAction> robotPath = new ArrayList<>();
-        Robot previousRobotPosition = null;
 
         // Move each box out of the way
         for (MoveableBox box : boxesToMove) {
             // Create an RRT to move the box out of the way
-            MoveableObstacleRRT obstacleRRT = new MoveableObstacleRRT(
-                    topLevelSolution.getState().getStaticObstacles(),
-                    topLevelSolution.getState().getMoveableObstacles(),
-                    box,
-                    solutionNodes,
-                    robotWidth
+            MoveableObstacleRRT obstacleRRT = new MoveableObstacleRRT(box, previousRobotPosition,
+                    solutionNodes
             );
 
             // Attach a visualiser if it is required
@@ -101,43 +91,17 @@ public class MoveableBoxAction {
             if (obstacleRRT.solve()) {
                 ArrayList<RobotAction> obstacleRobotPath = obstacleRRT.getRobotPath();
 
-                if (previousRobotPosition != null) {
-                    // Move the robot from the end of the last moveable obstacle path to the beginning
-                    // of the next
-                    RobotRRT rrt = new RobotRRT(
-                            topLevelSolution.getState().getAllObstacles(),
-                            previousRobotPosition,
-                            obstacleRobotPath.get(0).getInitialRobot(),
-                            obstacleRRT.getInitialBox()
-                    );
-
-                    if (rrt.solve()) {
-                        // Add the path to get to the start of the box moving path, and the box moving
-                        // path
-                        robotPath.addAll(rrt.getSolution().actionPathFromRoot());
-                        robotPath.addAll(obstacleRobotPath);
-                    } else {
-                        throw new NoPathException();
-                    }
-                }
-
                 // Set the previous robot position to the end of the latest path
                 previousRobotPosition = obstacleRobotPath.get(
                         obstacleRobotPath.size() - 1
                 ).getFinalRobot();
 
-                // Get the solution
-                TreeNode<MoveableBoxState, MoveableBoxAction> solution = obstacleRRT.getSolution();
+                robotPath.addAll(obstacleRobotPath);
 
-                // Add the solution to the list
-                moveableBoxSolutionNodes.add(0, solution);
-
-                // Make a new Box to represent the position of the moved box,
-                // now as a static obstacle
-                Box newBox = new Box(solution.getState().getMainBox().getRect());
-
-                // Make the moveable obstacle static
-                topLevelSolution.getState().addStaticObstacle(newBox);
+                // Make the moved box static
+                Workspace.getInstance().finishPush(
+                        obstacleRRT.getSolution().getState().getMainBox()
+                );
             } else {
                 throw new NoPathException();
             }
@@ -165,15 +129,6 @@ public class MoveableBoxAction {
     }
 
     /**
-     * Get the solution nodes for the moveable box paths
-     *
-     * @return the solution nodes
-     */
-    public ArrayList<TreeNode<MoveableBoxState, MoveableBoxAction>> getMoveableBoxSolutionNodes() {
-        return moveableBoxSolutionNodes;
-    }
-
-    /**
      * Gets the box representing the movement
      *
      * @return the movement box
@@ -187,7 +142,7 @@ public class MoveableBoxAction {
      *
      * @return the initial position of the robot
      */
-    public Robot getRobotPushingPosition(double width) {
+    public Robot getRobotPushingPosition() {
         return new Robot(
                 new Point2D.Double(
                         initialBox.getRect().getCenterX() +
@@ -196,7 +151,7 @@ public class MoveableBoxAction {
                                 -signum(getDy()) * (initialBox.getRect().getHeight() / 2)
                 ),
                 getDx() == 0 ? 0 : PI / 2,
-                width
+                Workspace.getInstance().getRobotWidth()
         );
     }
 
@@ -205,8 +160,8 @@ public class MoveableBoxAction {
      *
      * @return the final position of the robot
      */
-    public Robot getFinalRobotPosition(double width) {
-        Robot initialRobot = getRobotPushingPosition(width);
+    public Robot getFinalRobotPosition() {
+        Robot initialRobot = getRobotPushingPosition();
         initialRobot.move(getDx(), getDy(), 0);
         return initialRobot;
     }
@@ -215,25 +170,16 @@ public class MoveableBoxAction {
      * Calculate the path for the robot to move to get to the start of this action and push the box.
      * If previousRobotPosition is null, the path will only contain the action to push the box.
      *
-     * @param staticObstacles the static obstacles to avoid
      * @param previousRobotPosition the starting position of the robot
-     * @param robotWidth the width of the robot
      *
      * @throws NoPathException if no path could be found
      */
-    public void solveRobotPath(ArrayList<Box> staticObstacles,
-            Robot previousRobotPosition, double robotWidth) throws NoPathException {
-        Robot pushingPosition = getRobotPushingPosition(robotWidth);
+    public void solveRobotPath(Robot previousRobotPosition) throws NoPathException {
+        Robot pushingPosition = getRobotPushingPosition();
 
         if (previousRobotPosition != null) {
             // Create an RRT for the robot
-            RobotRRT rrt = new RobotRRT(staticObstacles, previousRobotPosition, pushingPosition,
-                    initialBox
-            );
-
-//            Visualiser visualiser = new RobotVisualiser();
-//            Window window = new Window(visualiser);
-//            rrt.attachVisualiser(visualiser);
+            RobotRRT rrt = new RobotRRT(previousRobotPosition, pushingPosition, initialBox);
 
             // Solve the rrt
             if (rrt.solve()) {
@@ -245,7 +191,7 @@ public class MoveableBoxAction {
         }
 
         // Add the action that moves the box
-        robotPath.add(new RobotAction(pushingPosition, getFinalRobotPosition(robotWidth), true, initialBox));
+        robotPath.add(new RobotAction(pushingPosition, getFinalRobotPosition(), initialBox));
     }
 
     /**
@@ -256,23 +202,5 @@ public class MoveableBoxAction {
      */
     public ArrayList<RobotAction> getRobotPath() {
         return robotPath;
-    }
-
-    /**
-     * Get the final state of the box
-     *
-     * @return the final state of the box
-     */
-    public Box getFinalBox() {
-        return finalBox;
-    }
-
-    /**
-     * Get the initial state of the box
-     *
-     * @return the initial state of the box
-     */
-    public Box getInitialBox() {
-        return initialBox;
     }
 }

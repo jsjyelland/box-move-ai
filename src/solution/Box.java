@@ -110,4 +110,14 @@ public class Box {
 
         return false;
     }
+
+    /**
+     * Clone the box
+     *
+     * @return the cloned box
+     */
+    @Override
+    public Box clone() {
+        return new Box((Rectangle2D.Double) rect.clone());
+    }
 }

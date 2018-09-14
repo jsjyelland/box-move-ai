@@ -15,14 +15,12 @@ public class GoalBoxRRT extends MoveableBoxRRT {
     /**
      * Construct a GoalBoxRRT
      *
-     * @param staticObstacles the static obstacles
      * @param initialBox the initial box
      * @param goalBox the goal box
-     * @param robotWidth the width of the robot
+     * @param robotStartingPosition the starting position of the robot
      */
-    public GoalBoxRRT(ArrayList<Box> staticObstacles, ArrayList<MoveableBox> moveableObstacles,
-            MoveableBox initialBox, MoveableBox goalBox, double robotWidth) {
-        super(staticObstacles, moveableObstacles, initialBox, robotWidth);
+    public GoalBoxRRT(MoveableBox initialBox, MoveableBox goalBox, Robot robotStartingPosition) {
+        super(initialBox, robotStartingPosition);
         this.goalBox = goalBox;
     }
 
@@ -38,11 +36,7 @@ public class GoalBoxRRT extends MoveableBoxRRT {
             TreeNode<MoveableBoxState, MoveableBoxAction> newestNode) {
         try {
             // Try to connect to the goal
-            solutionNode = connectNodeToState(newestNode, new MoveableBoxState(
-                    goalBox,
-                    newestNode.getState().getStaticObstacles(),
-                    newestNode.getState().getMoveableObstacles()
-            ), true);
+            solutionNode = connectNodeToState(newestNode, new MoveableBoxState(goalBox), true);
 
             return true;
         } catch (InvalidStateException e) {
@@ -60,5 +54,25 @@ public class GoalBoxRRT extends MoveableBoxRRT {
     @Override
     protected ArrayList<TreeNode<MoveableBoxState, MoveableBoxAction>> getSolutionLeaves() {
         return new ArrayList<>(Arrays.asList(solutionNode));
+    }
+
+    /**
+     * Push the box in the workspace
+     *
+     * @param boxToPush the box to push
+     */
+    @Override
+    protected void pushBoxInWorkspace(MoveableBox boxToPush) {
+        Workspace.getInstance().pushGoalBox(boxToPush);
+    }
+
+    /**
+     * Finish pushing the box in the workspace
+     *
+     * @param newPosition the new position of the box
+     */
+    @Override
+    protected void finishPushBoxInWorkspace(MoveableBox newPosition) {
+        Workspace.getInstance().finishPushGoalBox(newPosition);
     }
 }

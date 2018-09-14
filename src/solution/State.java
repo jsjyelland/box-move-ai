@@ -1,22 +1,6 @@
 package solution;
 
-import java.util.ArrayList;
-
 public abstract class State {
-    /**
-     * A list of the static obstacles in the workspace
-     */
-    protected ArrayList<Box> staticObstacles;
-
-    /**
-     * Construct a state
-     *
-     * @param staticObstacles a list of static obstacles
-     */
-    public State(ArrayList<Box> staticObstacles) {
-        this.staticObstacles = staticObstacles;
-    }
-
     /**
      * Check if the state is valid.
      *
@@ -56,40 +40,4 @@ public abstract class State {
      * @throws InvalidStateException if other does not conform to the subclass type
      */
     public abstract State stepTowards(State other, double delta) throws InvalidStateException;
-
-    /**
-     * Add a static obstacle
-     *
-     * @param newObstacle the obstacle to add
-     */
-    public void addStaticObstacle(Box newObstacle) {
-        staticObstacles.add(newObstacle);
-    }
-
-    /**
-     * Get the static obstacles
-     *
-     * @return the static obstacles
-     */
-    public ArrayList<Box> getStaticObstacles() {
-        return staticObstacles;
-    }
-
-    /**
-     * Set the static obstacles
-     *
-     * @param staticObstacles the static obstacles
-     */
-    public void setStaticObstacles(ArrayList<Box> staticObstacles) {
-        this.staticObstacles = staticObstacles;
-    }
-
-    /**
-     * Configure a state, given the nearest node in the search tree
-     *
-     * @param nearestNode the nearest node in the search tree
-     * @param <T> the class of state
-     * @param <U> the class of action
-     */
-    public abstract <T extends State, U> void configure(TreeNode<T, U> nearestNode);
 }

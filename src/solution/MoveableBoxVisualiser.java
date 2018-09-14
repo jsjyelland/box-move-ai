@@ -18,19 +18,16 @@ public class MoveableBoxVisualiser extends Visualiser<MoveableBoxState, Moveable
     @Override
     protected void paintTreeNode(TreeNode<MoveableBoxState, MoveableBoxAction> node,
             Graphics2D g2) {
-        TreeNode<MoveableBoxState, MoveableBoxAction> obstacleNode =
-                solutionNode == null ? tree : solutionNode;
-
         // Draw all the static obstacles
         g2.setColor(Color.BLACK);
-        for (Box obstacle : obstacleNode.getState().getStaticObstacles()) {
+        for (Box obstacle : Workspace.getInstance().getStaticObstacles()) {
             Shape shape = transform.createTransformedShape(obstacle.getRect());
             g2.fill(shape);
         }
 
         // Draw all the moveable obstacles
         g2.setColor(Color.GREEN);
-        for (Box obstacle : obstacleNode.getState().getMoveableObstacles()) {
+        for (Box obstacle : Workspace.getInstance().getMoveableObstacles()) {
             Shape shape = transform.createTransformedShape(obstacle.getRect());
             g2.fill(shape);
         }

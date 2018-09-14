@@ -1,5 +1,7 @@
 package solution;
 
+import com.sun.corba.se.spi.orbutil.threadpool.Work;
+
 import java.util.ArrayList;
 
 import static java.lang.Math.atan2;
@@ -17,21 +19,11 @@ public class MoveableBoxState extends State {
     private MoveableBox mainBox;
 
     /**
-     * A list of moveable obstacles in the workspace
-     */
-    private ArrayList<MoveableBox> moveableObstacles;
-
-    /**
      * Construct a new state
      *
      * @param mainBox the moveable box
-     * @param staticObstacles the static obstacles
-     * @param moveableObstacles the moveable obstacles
      */
-    public MoveableBoxState(MoveableBox mainBox, ArrayList<Box> staticObstacles,
-            ArrayList<MoveableBox> moveableObstacles) {
-        super(staticObstacles);
-        this.moveableObstacles = moveableObstacles;
+    public MoveableBoxState(MoveableBox mainBox) {
         this.mainBox = mainBox;
     }
 
@@ -64,7 +56,7 @@ public class MoveableBoxState extends State {
         Box union = mainBox.union(newState.mainBox);
 
         // Check if this union is valid
-        if (!union.isValid(staticObstacles)) {
+        if (!union.isValid(Workspace.getInstance().getStaticObstacles())) {
             throw new InvalidStateException();
         }
 
@@ -83,7 +75,7 @@ public class MoveableBoxState extends State {
     @Override
     public boolean isValid() {
         // Check if the mainBox is valid
-        return mainBox.isValid(staticObstacles);
+        return mainBox.isValid(Workspace.getInstance().getStaticObstacles());
     }
 
     /**
@@ -93,8 +85,7 @@ public class MoveableBoxState extends State {
      */
     @Override
     public MoveableBoxState clone() {
-        return new MoveableBoxState(mainBox.clone(), new ArrayList<>(staticObstacles),
-                new ArrayList<>(moveableObstacles));
+        return new MoveableBoxState(mainBox.clone());
     }
 
     /**
@@ -158,15 +149,6 @@ public class MoveableBoxState extends State {
     }
 
     /**
-     * Remove a moveable obstacle
-     *
-     * @param moveableBox the obstacle to remove
-     */
-    public void removeMoveableObstacle(MoveableBox moveableBox) {
-        moveableObstacles.remove(moveableBox);
-    }
-
-    /**
      * Set the main box.
      *
      * @param mainBox the main box
@@ -182,55 +164,5 @@ public class MoveableBoxState extends State {
      */
     public MoveableBox getMainBox() {
         return mainBox;
-    }
-
-    /**
-     * Get the moveable obstacles
-     *
-     * @return the moveable obstacles
-     */
-    public ArrayList<MoveableBox> getMoveableObstacles() {
-        return moveableObstacles;
-    }
-
-    /**
-     * Set the moveable obstacles
-     *
-     * @param moveableObstacles the moveable obstacles
-     */
-    public void setMoveableObstacles(ArrayList<MoveableBox> moveableObstacles) {
-        this.moveableObstacles = moveableObstacles;
-    }
-
-    /**
-     * Get all the obstacles in the workspace
-     *
-     * @return a list containing the moveable and static obstacles
-     */
-    public ArrayList<Box> getAllObstacles() {
-        ArrayList<Box> all = new ArrayList<>();
-        all.addAll(staticObstacles);
-        all.addAll(moveableObstacles);
-
-        return all;
-    }
-
-
-    /**
-     * Configure a state, given the nearest node in the search tree. Sets the moveable obstacles and
-     * static obstacles from this node. The node must have a state class of MoveableBoxState
-     *
-     * @param nearestNode the nearest node in the search tree
-     * @param <T> the class of state
-     * @param <U> the class of action
-     */
-    @Override
-    public <T extends State, U> void configure(TreeNode<T, U> nearestNode) {
-        // Make sure the node has a state of class MoveableBoxState
-        if (nearestNode.getState() instanceof MoveableBoxState) {
-            MoveableBoxState state = (MoveableBoxState) nearestNode.getState();
-            setStaticObstacles(state.getStaticObstacles());
-            setMoveableObstacles(state.getMoveableObstacles());
-        }
     }
 }

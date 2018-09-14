@@ -2,7 +2,6 @@ package solution;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
 
 public class RobotRRTTester {
     public static void main(String[] args) {
@@ -15,9 +14,10 @@ public class RobotRRTTester {
 
         RobotRRT rrt;
 
+        Workspace.getInstance().setStaticObstacles(initialStaticObstacles);
+
         try {
             rrt = new RobotRRT(
-                    initialStaticObstacles,
                     new Robot(0.9, 0.05, 0, 0.04),
                     new Robot(0.05, 0.95, 0, 0.04),
                     null

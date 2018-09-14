@@ -1,7 +1,5 @@
 package solution;
 
-import java.util.ArrayList;
-
 import static java.lang.Math.PI;
 import static java.lang.Math.random;
 
@@ -20,29 +18,31 @@ public class RobotRRT extends RRT<RobotState, RobotAction> {
     private Robot goalRobot;
 
     /**
+     * The box to get to and push
+     */
+    private Box boxToPush;
+
+    /**
      * Construct a RobotRRT
      *
-     * @param staticObstacles the static obstacles
      * @param initialRobot the initial robot
      * @param boxToPush the box the robot is pushing
      */
-    public RobotRRT(ArrayList<Box> staticObstacles, Robot initialRobot, Robot goalRobot,
+    public RobotRRT(Robot initialRobot, Robot goalRobot,
             Box boxToPush)
             throws NoPathException {
-        if (!initialRobot.isValid(staticObstacles) || !goalRobot.isValid(staticObstacles)) {
+        // Check to make sure the initial and goal configurations are valid
+        if (!initialRobot.isValid(Workspace.getInstance().getAllObstacles()) ||
+                    !goalRobot.isValid(Workspace.getInstance().getAllObstacles())) {
             throw new NoPathException();
         }
 
         this.initialRobot = initialRobot;
         this.goalRobot = goalRobot;
-
-        staticObstacles = new ArrayList<>(staticObstacles);
-        if (boxToPush != null) {
-            staticObstacles.add(boxToPush);
-        }
+        this.boxToPush = boxToPush;
 
         // Make an initial tree
-        tree = new TreeNode<>(new RobotState(initialRobot, staticObstacles), null);
+        tree = new TreeNode<>(new RobotState(initialRobot), null);
 
         // Add the root to nodes
         nodes.add(tree);
@@ -57,10 +57,7 @@ public class RobotRRT extends RRT<RobotState, RobotAction> {
     protected boolean checkSolution(TreeNode<RobotState, RobotAction> newestNode) {
         try {
             // Try to connect to the goal
-            solutionNode = connectNodeToState(newestNode, new RobotState(
-                    goalRobot,
-                    newestNode.getState().getStaticObstacles()
-            ), true);
+            solutionNode = connectNodeToState(newestNode, new RobotState(goalRobot), true);
 
             return true;
         } catch (InvalidStateException e) {
@@ -100,7 +97,9 @@ public class RobotRRT extends RRT<RobotState, RobotAction> {
         if (!(dx == 0 && dy == 0 && dtheta == 0)) {
             // Check if the action is valid. Will throw an
             // InvalidStateException if not.
-            TreeNode<RobotState, RobotAction> newNode = node.getState().action(dx, dy, stateTheta);
+            TreeNode<RobotState, RobotAction> newNode = node.getState().action(dx, dy, stateTheta,
+                    boxToPush
+            );
 
             // Add the new node to the tree
             if (addChild) {
@@ -121,8 +120,31 @@ public class RobotRRT extends RRT<RobotState, RobotAction> {
      */
     @Override
     protected RobotState newRandomState() {
-        return new RobotState(
-                new Robot(random(), random(), random() * 2 * PI, initialRobot.getWidth()), null
-        );
+        double newAngle;
+        double chance = random();
+
+        if (chance < 0.4) {
+            newAngle = 0;
+        } else if (chance < 0.8) {
+            newAngle = PI / 2;
+        } else {
+            newAngle = random() * 2 * PI;
+        }
+
+        return new RobotState(new Robot(
+                random(), random(), newAngle, initialRobot.getWidth()
+        ));
+    }
+
+    /**
+     * Validate a state
+     *
+     * @param state the state to validate
+     *
+     * @throws InvalidStateException if the state is invalid
+     */
+    @Override
+    protected void validateState(RobotState state) throws InvalidStateException {
+        state.validate(boxToPush);
     }
 }

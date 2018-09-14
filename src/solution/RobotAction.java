@@ -15,11 +15,6 @@ public class RobotAction {
     private Robot finalRobot;
 
     /**
-     * Whether the robot should rotate before moving or not
-     */
-    private boolean rotateFirst;
-
-    /**
      * The box the robot is pushing
      */
     private Box boxPushing;
@@ -29,12 +24,10 @@ public class RobotAction {
      *
      * @param initialRobot the initial state of the robot
      * @param finalRobot the final state of the robot
-     * @param rotateFirst whether the robot should rotate before moving or not
      */
-    public RobotAction(Robot initialRobot, Robot finalRobot, boolean rotateFirst) {
+    public RobotAction(Robot initialRobot, Robot finalRobot) {
         this.initialRobot = initialRobot;
         this.finalRobot = finalRobot;
-        this.rotateFirst = rotateFirst;
     }
 
     /**
@@ -42,11 +35,10 @@ public class RobotAction {
      *
      * @param initialRobot the initial state of the robot
      * @param finalRobot the final state of the robot
-     * @param rotateFirst whether the robot should rotate before moving or not
      * @param boxPushing the box the robot is pushing
      */
-    public RobotAction(Robot initialRobot, Robot finalRobot, boolean rotateFirst, Box boxPushing) {
-        this(initialRobot, finalRobot, rotateFirst);
+    public RobotAction(Robot initialRobot, Robot finalRobot, Box boxPushing) {
+        this(initialRobot, finalRobot);
         this.boxPushing = boxPushing;
     }
 
@@ -93,15 +85,6 @@ public class RobotAction {
      */
     public double getDtheta() {
         return finalRobot.getTheta() - initialRobot.getTheta();
-    }
-
-    /**
-     * Should the robot rotate before moving or not
-     *
-     * @return whether the robot should rotate before moving or not
-     */
-    public boolean shouldRotateFirst() {
-        return rotateFirst;
     }
 
     /**

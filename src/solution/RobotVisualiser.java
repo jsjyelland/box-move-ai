@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.BasicStroke;
-import java.awt.geom.Line2D;
 
 /**
  * A visualiser for a robot path
@@ -20,7 +19,7 @@ public class RobotVisualiser extends Visualiser<RobotState, RobotAction> {
     protected void paintTreeNode(TreeNode<RobotState, RobotAction> node, Graphics2D g2) {
         // Draw all the static obstacles
         g2.setColor(Color.BLACK);
-        for (Box obstacle : node.getState().getStaticObstacles()) {
+        for (Box obstacle : Workspace.getInstance().getStaticObstacles()) {
             Shape shape = transform.createTransformedShape(obstacle.getRect());
             g2.fill(shape);
         }

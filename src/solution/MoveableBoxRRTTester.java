@@ -20,12 +20,20 @@ public class MoveableBoxRRTTester {
                 new MoveableBox(0.01, 0.6, 0.05)
         ));
 
+        ArrayList<MoveableBox> goalBoxes = new ArrayList<>(Arrays.asList(
+                new MoveableBox(0.9, 0.125, 0.05)
+        ));
+
+        Workspace.getInstance().setStaticObstacles(initialStaticObstacles);
+        Workspace.getInstance().setMoveableObstacles(initialMoveableObstacles);
+        Workspace.getInstance().setGoalBoxes(goalBoxes);
+
+        Workspace.getInstance().setRobotWidth(0.05);
+
         GoalBoxRRT rrt = new GoalBoxRRT(
-                initialStaticObstacles,
-                initialMoveableObstacles,
                 new MoveableBox(0.9, 0.125, 0.05),
                 new MoveableBox(0.0, 0.9, 0.05),
-                0.05
+                new Robot(0.8, 0.2, 0, Workspace.getInstance().getRobotWidth())
         );
 
         // Create the visualizer

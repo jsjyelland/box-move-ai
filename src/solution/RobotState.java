@@ -1,9 +1,7 @@
 package solution;
 
-import java.awt.geom.Area;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Path2D;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import static java.lang.Math.*;
 
@@ -20,10 +18,8 @@ public class RobotState extends State {
      * Construct a new robot state
      *
      * @param robot the robot
-     * @param staticObstacles the static obstacles to check collision with
      */
-    public RobotState(Robot robot, ArrayList<Box> staticObstacles) {
-        super(staticObstacles);
+    public RobotState(Robot robot) {
         this.robot = robot;
     }
 
@@ -33,12 +29,13 @@ public class RobotState extends State {
      * @param dx x distance to move robot by
      * @param dy y distance to move robot by
      * @param newTheta the new theta value for the robot to move to
+     * @param boxToPush the box the robot is pushing
      *
      * @return a new node containing the new state and the action to get to this state
      *
      * @throws InvalidStateException if the new state is invalid
      */
-    public TreeNode<RobotState, RobotAction> action(double dx, double dy, double newTheta)
+    public TreeNode<RobotState, RobotAction> action(double dx, double dy, double newTheta, Box boxToPush)
             throws InvalidStateException {
         // Clone this state
         RobotState newState = clone();
@@ -57,13 +54,13 @@ public class RobotState extends State {
             );
 
             // Check if this configuration is valid
-            if (!(i == 0 || i == numSteps - 1) && !newState.robot.isValid(staticObstacles)) {
+            if (!(i == 0 || i == numSteps - 1) && !newState.isValid(boxToPush)) {
                 throw new InvalidStateException();
             }
         }
 
         // Create and return a new node with this new state
-        return new TreeNode<>(newState, new RobotAction(robot, newState.robot, false));
+        return new TreeNode<>(newState, new RobotAction(robot, newState.robot));
     }
 
     /**
@@ -75,7 +72,7 @@ public class RobotState extends State {
     @Override
     public boolean isValid() {
         // Check if the robot is valid
-        return robot.isValid(staticObstacles);
+        return robot.isValid(Workspace.getInstance().getAllObstacles());
     }
 
     /**
@@ -85,7 +82,7 @@ public class RobotState extends State {
      */
     @Override
     public RobotState clone() {
-        return new RobotState(robot.clone(), new ArrayList<>(staticObstacles));
+        return new RobotState(robot.clone());
     }
 
     /**
@@ -173,22 +170,6 @@ public class RobotState extends State {
     }
 
     /**
-     * Configure a state, given the nearest node in the search tree. Sets the static obstacles from
-     * this node. The node must have a state class of RobotState
-     *
-     * @param nearestNode the nearest node in the search tree
-     * @param <T> the class of state
-     * @param <U> the class of action
-     */
-    @Override
-    public <T extends State, U> void configure(TreeNode<T, U> nearestNode) {
-        if (nearestNode.getState() instanceof RobotState) {
-            RobotState state = (RobotState) nearestNode.getState();
-            setStaticObstacles(state.getStaticObstacles());
-        }
-    }
-
-    /**
      * Get the robot
      *
      * @return the robot
@@ -204,5 +185,29 @@ public class RobotState extends State {
      */
     public void setRobot(Robot robot) {
         this.robot = robot;
+    }
+
+    /**
+     * Whether the state is valid or not given a box to push
+     *
+     * @param boxPushing the box to push
+     *
+     * @return whether the state is valid or not
+     */
+    public boolean isValid(Box boxPushing) {
+        return isValid() && robot.isValid(new ArrayList<>(Arrays.asList(boxPushing)));
+    }
+
+    /**
+     * Validates the state given a box to push
+     *
+     * @param boxPushing the box to push
+     *
+     * @throws InvalidStateException if the state is invalid
+     */
+    public void validate(Box boxPushing) throws InvalidStateException {
+        if (!isValid(boxPushing)) {
+            throw new InvalidStateException();
+        }
     }
 }

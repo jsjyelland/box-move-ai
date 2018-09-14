@@ -28,6 +28,20 @@ public class RobotActionVisualiser extends JComponent {
         g2.setColor(Color.WHITE);
         g2.fillRect(0, 0, getWidth(), getHeight());
 
+        g2.setColor(Color.BLACK);
+        for (Box obstacle : Workspace.getInstance().getStaticObstacles()) {
+            Shape shape = transform.createTransformedShape(obstacle.getRect());
+            g2.fill(shape);
+        }
+
+        // Draw all the moveable obstacles
+        g2.setColor(Color.GREEN);
+        for (Box obstacle : Workspace.getInstance().getMoveableObstacles()) {
+            Shape shape = transform.createTransformedShape(obstacle.getRect());
+            g2.fill(shape);
+        }
+
+
         int lastX = -1;
         int lastY = -1;
 
