@@ -28,19 +28,19 @@ public class RobotState extends State {
      *
      * @param dx x distance to move robot by
      * @param dy y distance to move robot by
-     * @param newTheta the new theta value for the robot to move to
      * @param boxToPush the box the robot is pushing
+     * @param dtheta change in theta
      *
      * @return a new node containing the new state and the action to get to this state
      *
      * @throws InvalidStateException if the new state is invalid
      */
-    public TreeNode<RobotState, RobotAction> action(double dx, double dy, double newTheta, Box boxToPush)
+    public TreeNode<RobotState, RobotAction> action(double dx, double dy, double dtheta, Box boxToPush)
             throws InvalidStateException {
         // Clone this state
         RobotState newState = clone();
 
-        double distance = distanceWithNewTheta(dx, dy, newTheta);
+        double distance = distanceDelta(dx, dy, dtheta);
         double numSteps = ceil(distance / 0.001);
         double stepSize = distance / numSteps;
 
@@ -50,7 +50,7 @@ public class RobotState extends State {
             newState.robot.move(
                     (dx / distance) * stepSize,
                     (dy / distance) * stepSize,
-                    ((newTheta - robot.getTheta()) / distance) * stepSize
+                    (dtheta / distance) * stepSize
             );
 
             // Check if this configuration is valid
@@ -91,15 +91,18 @@ public class RobotState extends State {
      *
      * @param dx change in x
      * @param dy change in y
-     * @param newTheta new value of theta
+     * @param dtheta change in theta
      *
      * @return the distance
      */
-    private double distanceWithNewTheta(double dx, double dy, double newTheta) {
-        double deltaCos = cos(newTheta) - cos(robot.getTheta());
-        double deltaSin = sin(newTheta) - sin(robot.getTheta());
-        return sqrt(max(pow(dx - robot.getWidth() * deltaCos, 2) + pow(dy - robot.getWidth() * deltaSin, 2),
-                pow(dx + robot.getWidth() * deltaCos, 2) + pow(dy + robot.getWidth() * deltaSin, 2)));
+    private double distanceDelta(double dx, double dy, double dtheta) {
+        // Clone this state's robot
+        Robot newRobot = robot.clone();
+
+        // move it, then calculate the distance to the old position
+        newRobot.move(dx, dy ,dtheta);
+
+        return robot.distanceToOtherRobot(newRobot);
     }
 
     /**
@@ -115,10 +118,10 @@ public class RobotState extends State {
         if (other instanceof RobotState) {
             RobotState robotState = (RobotState) other;
 
-            return distanceWithNewTheta(
+            return distanceDelta(
                     robot.getPos().getX() - robotState.getRobot().getPos().getX(),
                     robot.getPos().getY() - robotState.getRobot().getPos().getY(),
-                    robotState.getRobot().getTheta()
+                    robot.getTheta() - robotState.getRobot().getTheta()
             );
         } else {
             return -1;

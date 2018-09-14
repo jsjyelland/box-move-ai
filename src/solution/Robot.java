@@ -176,6 +176,17 @@ public class Robot {
     }
 
     /**
+     * Calculate the distance between this robot and a second robot. This represents maximum distance the
+     * ends of the robot will have to move
+     * @param other the other robot
+     * @return the maximum distance
+     */
+    public double distanceToOtherRobot(Robot other) {
+        return sqrt(max(pow(other.getX1() - getX1(), 2) + pow(other.getY1() - getY1(), 2),
+                pow(other.getX2() - getX2(), 2) + pow(other.getY2() - getY2(), 2)));
+    }
+
+    /**
      * Move the robot
      *
      * @param dx change in x

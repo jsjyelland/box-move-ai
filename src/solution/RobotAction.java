@@ -17,7 +17,8 @@ public class RobotAction {
     /**
      * The box the robot is pushing
      */
-    private Box boxPushing;
+    private MoveableBox boxPushing;
+
 
     /**
      * Construct a RobotAction
@@ -37,7 +38,7 @@ public class RobotAction {
      * @param finalRobot the final state of the robot
      * @param boxPushing the box the robot is pushing
      */
-    public RobotAction(Robot initialRobot, Robot finalRobot, Box boxPushing) {
+    public RobotAction(Robot initialRobot, Robot finalRobot, MoveableBox boxPushing) {
         this(initialRobot, finalRobot);
         this.boxPushing = boxPushing;
     }
@@ -91,7 +92,7 @@ public class RobotAction {
      * Set the box the robot is pushing
      * @param boxPushing the box the robot is pushing
      */
-    public void setBoxPushing(Box boxPushing) {
+    public void setBoxPushing(MoveableBox boxPushing) {
         this.boxPushing = boxPushing;
     }
 
@@ -99,7 +100,7 @@ public class RobotAction {
      * Get the box the robot is pushing
      * @return the box the robot is pushing
      */
-    public Box getBoxPushing() {
+    public MoveableBox getBoxPushing() {
         return boxPushing;
     }
 }

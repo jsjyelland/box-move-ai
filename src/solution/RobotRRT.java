@@ -97,7 +97,7 @@ public class RobotRRT extends RRT<RobotState, RobotAction> {
         if (!(dx == 0 && dy == 0 && dtheta == 0)) {
             // Check if the action is valid. Will throw an
             // InvalidStateException if not.
-            TreeNode<RobotState, RobotAction> newNode = node.getState().action(dx, dy, stateTheta,
+            TreeNode<RobotState, RobotAction> newNode = node.getState().action(dx, dy, dtheta,
                     boxToPush
             );
 
