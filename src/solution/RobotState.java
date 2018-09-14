@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import static java.lang.Math.*;
+import static solution.Utility.angleBetween;
+import static solution.Utility.smallestAngleBetween;
 
 /**
  * A state object, containing the location and orientation of the robot.
@@ -159,11 +161,16 @@ public class RobotState extends State {
         RobotState newState = clone();
 
         // Move along the line between this state and other by amount delta
+        double dx = robotState.getRobot().getX() - robot.getX();
+        double dy = robotState.getRobot().getY() - robot.getY();
+
+        double smallestAngle = smallestAngleBetween(robotState.getRobot().getTheta(), robot.getTheta());
+        double dtheta = angleBetween(robot.getTheta(), robotState.getRobot().getTheta()) < PI ? smallestAngle : -smallestAngle;
+
         Robot newRobot = new Robot(
-                robot.getX() + (delta / distance) * (robotState.getRobot().getX() - robot.getX()),
-                robot.getY() + (delta / distance) * (robotState.getRobot().getY() - robot.getY()),
-                robot.getTheta() + (delta / distance) * (robotState.getRobot().getTheta() -
-                                                                 robot.getTheta()),
+                robot.getX() + (delta / distance) * dx,
+                robot.getY() + (delta / distance) * dy,
+                robot.getTheta() + (delta / distance) * dtheta,
                 robot.getWidth()
         );
 

@@ -2,6 +2,8 @@ package solution;
 
 import static java.lang.Math.PI;
 import static java.lang.Math.random;
+import static solution.Utility.angleBetween;
+import static solution.Utility.smallestAngleBetween;
 
 /**
  * An rapidly exploring random tree for the robot
@@ -92,7 +94,9 @@ public class RobotRRT extends RRT<RobotState, RobotAction> {
 
         double dx = stateX - nodeX;
         double dy = stateY - nodeY;
-        double dtheta = stateTheta - nodeTheta;
+
+        double smallestAngle = smallestAngleBetween(stateTheta, nodeTheta);
+        double dtheta = angleBetween(nodeTheta, stateTheta) < PI ? smallestAngle : -smallestAngle;
 
         if (!(dx == 0 && dy == 0 && dtheta == 0)) {
             // Check if the action is valid. Will throw an

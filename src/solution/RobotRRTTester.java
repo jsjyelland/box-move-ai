@@ -20,7 +20,7 @@ public class RobotRRTTester {
             rrt = new RobotRRT(
                     new Robot(0.9, 0.05, 0, 0.04),
                     new Robot(0.05, 0.95, 0, 0.04),
-                    null
+                    new MoveableBox(0, 0, 0)
             );
         } catch (NoPathException e) {
             return;

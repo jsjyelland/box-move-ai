@@ -4,6 +4,7 @@ import java.awt.geom.*;
 import java.util.ArrayList;
 
 import static java.lang.Math.*;
+import static solution.Utility.mod;
 
 /**
  * The robot. Consists of a line segment which can move vertically, horizontally and can rotate.
@@ -182,8 +183,11 @@ public class Robot {
      * @return the maximum distance
      */
     public double distanceToOtherRobot(Robot other) {
-        return sqrt(max(pow(other.getX1() - getX1(), 2) + pow(other.getY1() - getY1(), 2),
-                pow(other.getX2() - getX2(), 2) + pow(other.getY2() - getY2(), 2)));
+        return sqrt(min(
+                max(pow(other.getX1() - getX1(), 2) + pow(other.getY1() - getY1(), 2),
+                pow(other.getX2() - getX2(), 2) + pow(other.getY2() - getY2(), 2)),
+                max(pow(other.getX1() - getX2(), 2) + pow(other.getY1() - getY2(), 2),
+                pow(other.getX2() - getX1(), 2) + pow(other.getY2() - getY1(), 2))));
     }
 
     /**
@@ -195,7 +199,7 @@ public class Robot {
      */
     public void move(double dx, double dy, double dtheta) {
         pos.setLocation(pos.getX() + dx, pos.getY() + dy);
-        theta += dtheta;
+        theta = mod(theta + dtheta, 2 * PI);
     }
 
     /**
