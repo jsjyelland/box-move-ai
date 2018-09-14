@@ -37,7 +37,9 @@ public class RobotRRT extends RRT<RobotState, RobotAction> {
         this.goalRobot = goalRobot;
 
         staticObstacles = new ArrayList<>(staticObstacles);
-        staticObstacles.add(boxToPush);
+        if (boxToPush != null) {
+            staticObstacles.add(boxToPush);
+        }
 
         // Make an initial tree
         tree = new TreeNode<>(new RobotState(initialRobot, staticObstacles), null);

@@ -1,13 +1,9 @@
 package solution;
 
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Line2D;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
+import java.awt.geom.*;
 import java.util.ArrayList;
 
-import static java.lang.Math.cos;
-import static java.lang.Math.sin;
+import static java.lang.Math.*;
 
 /**
  * The robot. Consists of a line segment which can move vertically, horizontally and can rotate.
@@ -192,18 +188,6 @@ public class Robot {
     }
 
     /**
-     * Set the position and angle of the robot
-     *
-     * @param x x position
-     * @param y y position
-     * @param theta angle
-     */
-    public void set(double x, double y, double theta) {
-        pos.setLocation(x, y);
-        this.theta = theta;
-    }
-
-    /**
      * Check if this robot equals another object.
      *
      * @param obj the other object to check
@@ -245,5 +229,29 @@ public class Robot {
      */
     public Ellipse2D getCircleBounds() {
         return new Ellipse2D.Double(getX(), getY(), width, width);
+    }
+
+    /**
+     * Get an area bounding the rotation
+     *
+     * @param newTheta the new angle
+     *
+     * @return the rotation bounding area
+     */
+    public Area getRotationBounds(double newTheta) {
+        Arc2D arc1 = new Arc2D.Double(
+                getCircleBounds().getBounds2D(),
+                toDegrees(theta), toDegrees(newTheta - theta), Arc2D.PIE
+        );
+
+        Arc2D arc2 = new Arc2D.Double(
+                getCircleBounds().getBounds2D(),
+                toDegrees(theta + PI), toDegrees(newTheta - theta), Arc2D.PIE
+        );
+
+        Area area = new Area(arc1);
+        area.add(new Area(arc2));
+
+        return area;
     }
 }

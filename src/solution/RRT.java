@@ -12,12 +12,12 @@ public abstract class RRT<T extends State, U> {
     /**
      * Max distance a node can randomly expand doing RRT
      */
-    private static double MAX_DISTANCE = 0.3;
+    private static double MAX_DISTANCE = 0.2;
 
     /**
      * Max number of nodes before exiting search
      */
-    private static int MAX_NODES = 10000;
+    private static int MAX_NODES = 3000;
 
     /**
      * The tree of states

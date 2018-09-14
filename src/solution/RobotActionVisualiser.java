@@ -32,26 +32,31 @@ public class RobotActionVisualiser extends JComponent {
         int lastY = -1;
 
         for (RobotAction action : robotPath) {
-            Shape transformedShape = transform.createTransformedShape(
-                    action.getFinalRobot().getLine()
-            );
+            if (action != null) {
+                Shape transformedShape = transform.createTransformedShape(
+                        action.getFinalRobot().getLine()
+                );
 
-            int nodeX = (int) transformedShape.getBounds().getCenterX();
-            int nodeY = (int) transformedShape.getBounds().getCenterY();
+                int nodeX = (int) transformedShape.getBounds().getCenterX();
+                int nodeY = (int) transformedShape.getBounds().getCenterY();
 
-            g2.setColor(Color.RED);
-            g2.setStroke(new BasicStroke(5));
+                g2.setColor(Color.RED);
+                g2.setStroke(new BasicStroke(5));
 
-            // Draw the goal node
-            g2.draw(transformedShape);
+                // Draw the goal node
+                g2.draw(transformedShape);
 
-            // Draw a line to the last node
-            if (lastX != -1 && lastY != -1) {
-                g2.drawLine(nodeX, nodeY, lastX, lastY);
+                // Draw a line to the last node
+                if (lastX != -1 && lastY != -1) {
+                    g2.setColor(Color.GREEN);
+                    g2.setStroke(new BasicStroke(1));
+                    g2.drawLine(nodeX, nodeY, lastX, lastY);
+                }
+
+                lastX = nodeX;
+                lastY = nodeY;
             }
 
-            lastX = nodeX;
-            lastY = nodeY;
         }
     }
 }

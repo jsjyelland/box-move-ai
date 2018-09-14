@@ -105,7 +105,7 @@ public class MoveableBoxAction {
                     // Move the robot from the end of the last moveable obstacle path to the beginning
                     // of the next
                     RobotRRT rrt = new RobotRRT(
-                            topLevelSolution.getState().getStaticObstacles(),
+                            topLevelSolution.getState().getAllObstacles(),
                             previousRobotPosition,
                             obstacleRobotPath.get(0).getInitialRobot(),
                             obstacleRRT.getInitialBox()

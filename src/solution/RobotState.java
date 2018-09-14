@@ -1,7 +1,7 @@
 package solution;
 
-import java.awt.geom.Ellipse2D;
 import java.awt.geom.Area;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
 import java.util.ArrayList;
 
@@ -42,55 +42,28 @@ public class RobotState extends State {
             throws InvalidStateException {
         // Clone this state
         RobotState newState = clone();
-        newState.robot.move(dx, dy, 0);
 
-        // Create a parallelogram to represent the movement of the robot
-        Path2D union = new Path2D.Double();
-        union.moveTo(robot.getX1(), robot.getY1());
-        union.lineTo(robot.getX2(), robot.getY2());
-        union.lineTo(newState.robot.getX2(), newState.robot.getY2());
-        union.lineTo(newState.robot.getX1(), newState.robot.getY1());
-        union.closePath();
-        Area unionArea = new Area(union);
+        double distance = distanceWithNewTheta(dx, dy, newTheta);
+        double numSteps = ceil(distance / 0.001);
+        double stepSize = distance / numSteps;
 
-        // Should the robot rotate before moving?
-        boolean rotateFirst = true;
+        // Step along the line, checking the robot configuration at each step
+        for (double i = 0; i < numSteps; i++) {
+            // Move the robot by step size
+            newState.robot.move(
+                    (dx / distance) * stepSize,
+                    (dy / distance) * stepSize,
+                    ((newTheta - robot.getTheta()) / distance) * stepSize
+            );
 
-        newState.robot.move(0, 0, newTheta - newState.robot.getTheta());
-
-        // Create circles to encapsulate the rotation
-        Ellipse2D oldCircle = robot.getCircleBounds();
-        Ellipse2D newCircle = newState.robot.getCircleBounds();
-
-        // Check the movement given the static obstacles
-        for (Box box : staticObstacles) {
-            if (box instanceof MoveableBox) {
-                // This is the box we're pushing. Need to allow the robot to be on the edge
-                MoveableBox moveableBox = (MoveableBox) box;
-                if (moveableBox.pointStrictlyInside(robot.getP1()) ||
-                            moveableBox.pointStrictlyInside(robot.getP2())) {
-                    throw new InvalidStateException();
-                }
-            } else {
-                // Regular static obstacles
-                if (unionArea.intersects(box.getRect())) {
-                    throw new InvalidStateException();
-                }
-            }
-
-            if (oldCircle.intersects(box.getRect()) && rotateFirst) {
-                // Can't rotate first. Try rotating second.
-                rotateFirst = false;
-            }
-
-            if (newCircle.intersects(box.getRect()) && !rotateFirst) {
-                // Can't rotate first or second. Invalid state.
+            // Check if this configuration is valid
+            if (!(i == 0 || i == numSteps - 1) && !newState.robot.isValid(staticObstacles)) {
                 throw new InvalidStateException();
             }
         }
 
-        // Create and return a new node with this new state and action
-        return new TreeNode<>(newState, new RobotAction(robot, newState.robot, rotateFirst));
+        // Create and return a new node with this new state
+        return new TreeNode<>(newState, new RobotAction(robot, newState.robot, false));
     }
 
     /**

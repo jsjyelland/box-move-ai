@@ -1,5 +1,6 @@
 package solution;
 
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
@@ -60,16 +61,11 @@ public class MoveableBox extends Box {
         }
     }
 
-    /**
-     * Whether or not a point is strictly inside this box or not. This means if the point lies on
-     * the edge, it is not considered inside.
-     *
-     * @param point the point to check
-     *
-     * @return whether the point lies strictly inside the box or not
-     */
-    public boolean pointStrictlyInside(Point2D point) {
-        return point.getX() > getRect().getX() && point.getX() < getRect().getMaxX() &&
-                       point.getY() > getRect().getY() && point.getY() < getRect().getMaxY();
+    public Rectangle2D internalAreaApproximation() {
+        return new Rectangle2D.Double(rect.getX() + 0.001,
+                rect.getY() + 0.001,
+                rect.getWidth() - 0.002,
+                rect.getHeight() - 0.002
+        );
     }
 }

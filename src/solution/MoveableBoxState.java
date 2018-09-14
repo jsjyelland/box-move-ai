@@ -203,6 +203,20 @@ public class MoveableBoxState extends State {
     }
 
     /**
+     * Get all the obstacles in the workspace
+     *
+     * @return a list containing the moveable and static obstacles
+     */
+    public ArrayList<Box> getAllObstacles() {
+        ArrayList<Box> all = new ArrayList<>();
+        all.addAll(staticObstacles);
+        all.addAll(moveableObstacles);
+
+        return all;
+    }
+
+
+    /**
      * Configure a state, given the nearest node in the search tree. Sets the moveable obstacles and
      * static obstacles from this node. The node must have a state class of MoveableBoxState
      *
