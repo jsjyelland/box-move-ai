@@ -39,21 +39,17 @@ public class RobotState extends State {
      */
     public TreeNode<RobotState, RobotAction> action(double dx, double dy, double dtheta, Box boxToPush)
             throws InvalidStateException {
-        // Clone this state
         RobotState newState = clone();
 
         double distance = distanceDelta(dx, dy, dtheta);
         double numSteps = ceil(distance / 0.001);
-        double stepSize = distance / numSteps;
 
         // Step along the line, checking the robot configuration at each step
         for (double i = 0; i < numSteps; i++) {
-            // Move the robot by step size
-            newState.robot.move(
-                    (dx / distance) * stepSize,
-                    (dy / distance) * stepSize,
-                    (dtheta / distance) * stepSize
-            );
+            // Clone this state and move the robot along a line
+            newState = clone();
+
+            newState.robot.move(i / numSteps * dx, i / numSteps * dy, i / numSteps * dtheta);
 
             // Check if this configuration is valid
             if (!(i == 0 || i == numSteps - 1) && !newState.isValid(boxToPush)) {
