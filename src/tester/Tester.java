@@ -267,7 +267,7 @@ public class Tester {
 
         if (Math.abs(robotdy - boxdy) > MAX_ERROR || Math.abs(robotdx - boxdx) > MAX_ERROR) {
             System.out.println("Robot moving at different speed to box");
-            System.out.println("RobotSpeed: " + robotdy + "," + robotdx);
+            System.out.println("RobotSpeed: " + robotdx + "," + robotdy);
             System.out.println("BoxSpeed: " + boxdx + "," + boxdy);
             return false;
         }

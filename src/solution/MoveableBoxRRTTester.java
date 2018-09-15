@@ -54,6 +54,15 @@ public class MoveableBoxRRTTester {
             outputter.writeSolution("test.txt");
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (BoxLostException e) {
+            e.printStackTrace();
+            try {
+                outputter.writeSolution("test.txt");
+            } catch (IOException e2) {
+                e2.printStackTrace();
+            } catch (BoxLostException e2) {
+                e2.printStackTrace();
+            }
         }
 
         RobotActionVisualiser visualiser1 = new RobotActionVisualiser(actionPath);

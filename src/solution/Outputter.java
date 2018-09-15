@@ -36,7 +36,7 @@ public class Outputter {
         this.initialGoalBoxes = initialGoalBoxes;
     }
 
-    public void writeSolution(String filename) throws IOException {
+    public void writeSolution(String filename) throws IOException, BoxLostException {
         // Ensure the file exists
         File file = new File(filename);
         if (!file.exists()) {
@@ -98,6 +98,7 @@ public class Outputter {
                     } catch (IndexOutOfBoundsException e) {
                         System.out.println(allBoxes);
                         System.out.println(action.getBoxPushing());
+                        throw new BoxLostException(); // This is pretty ridiculous but whatever
                     }
                 }
                 allBoxesList.add(allBoxesDeepClone);
@@ -111,6 +112,7 @@ public class Outputter {
                 } catch (IndexOutOfBoundsException e) {
                     System.out.println(allBoxes);
                     System.out.println(action.getBoxPushing());
+                    throw new BoxLostException(); // This is pretty ridiculous but whatever
                 }
             }
 
