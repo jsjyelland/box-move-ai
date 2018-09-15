@@ -166,9 +166,11 @@ public class Tester {
 
     public boolean isValidStep(RobotConfig r1, RobotConfig r2) {
         if (getPoint1(r1).distance(getPoint1(r2)) > MAX_BASE_STEP + MAX_ERROR) {
+            System.out.println(getPoint1(r1).distance(getPoint1(r2)));
             return false;
         }
         if (getPoint2(r1).distance(getPoint2(r2)) > MAX_BASE_STEP + MAX_ERROR) {
+            System.out.println(getPoint2(r1).distance(getPoint2(r2)));
             return false;
         }
         return true;

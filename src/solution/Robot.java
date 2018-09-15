@@ -183,11 +183,9 @@ public class Robot {
      * @return the maximum distance
      */
     public double distanceToOtherRobot(Robot other) {
-        return sqrt(min(
+        return sqrt(
                 max(pow(other.getX1() - getX1(), 2) + pow(other.getY1() - getY1(), 2),
-                pow(other.getX2() - getX2(), 2) + pow(other.getY2() - getY2(), 2)),
-                max(pow(other.getX1() - getX2(), 2) + pow(other.getY1() - getY2(), 2),
-                pow(other.getX2() - getX1(), 2) + pow(other.getY2() - getY1(), 2))));
+                pow(other.getX2() - getX2(), 2) + pow(other.getY2() - getY2(), 2)));
     }
 
     /**

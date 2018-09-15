@@ -55,6 +55,11 @@ public class Outputter {
         ArrayList<MoveableBox> allBoxes = new ArrayList<>(initialGoalBoxes);
         allBoxes.addAll(initialMoveableObstacles);
 
+        ArrayList<MoveableBox>allBoxesInitialDeepClone = new ArrayList<>();
+        for (MoveableBox box: allBoxes) {
+            allBoxesInitialDeepClone.add(box.clone());
+        }
+
         ArrayList<ArrayList<MoveableBox>> allBoxesList = new ArrayList<>();
 
 
@@ -118,7 +123,7 @@ public class Outputter {
         // Second line: initial configuration
         RobotAction initialAction = robotPathPrimitive.get(0);
         bw.write(initialAction.getInitialRobot().getX() + " " + initialAction.getInitialRobot().getY() + " " + initialAction.getInitialRobot().getTheta());
-        for (MoveableBox box : allBoxes) {
+        for (MoveableBox box : allBoxesInitialDeepClone) {
             bw.write(" " + box.getRect().getCenterX() + " " + box.getRect().getCenterY());
         }
         bw.newLine();
