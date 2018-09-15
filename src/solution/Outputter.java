@@ -65,7 +65,7 @@ public class Outputter {
 
         for (RobotAction action : robotPath) {
             double actionSize = action.getInitialRobot().distanceToOtherRobot(action.getFinalRobot());
-            double numSteps = ceil(actionSize / 0.001);
+            double numSteps = ceil(actionSize / 0.1);
 
             // Step along the line, adding a robot action to robotPathPrimitive each time
             for (double i = 0; i < numSteps; i++) {
@@ -79,6 +79,9 @@ public class Outputter {
                 // Create the new action object
                 RobotAction newAction = new RobotAction(newInitialRobot, newFinalRobot);
 
+                // Append it to the ArrayList
+                robotPathPrimitive.add(newAction);
+
                 // Clone allBoxes
                 ArrayList<MoveableBox> allBoxesDeepClone = new ArrayList<>();
                 for (MoveableBox box: allBoxes) {
@@ -91,16 +94,13 @@ public class Outputter {
                             action.getBoxPushing());
                     try {
                         MoveableBox boxPushed = allBoxesDeepClone.get(boxPushedIndex);
-                        boxPushed.move(i / numSteps * action.getDx(), i / numSteps * action.getDy());
+                        boxPushed.move((i + 1) / numSteps * action.getDx(), (i + 1) / numSteps * action.getDy());
                     } catch (IndexOutOfBoundsException e) {
                         System.out.println(allBoxes);
                         System.out.println(action.getBoxPushing());
                     }
                 }
                 allBoxesList.add(allBoxesDeepClone);
-
-                // Append it to the ArrayList
-                robotPathPrimitive.add(newAction);
             }
             if (action.getBoxPushing() != null) {
                 int boxPushedIndex = allBoxes.indexOf(

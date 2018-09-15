@@ -1,4 +1,5 @@
 package tester;
+import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import problem.*;
 import solution.MoveableBox;
 import solution.Robot;
@@ -266,6 +267,8 @@ public class Tester {
 
         if (Math.abs(robotdy - boxdy) > MAX_ERROR || Math.abs(robotdx - boxdx) > MAX_ERROR) {
             System.out.println("Robot moving at different speed to box");
+            System.out.println("RobotSpeed: " + robotdy + "," + robotdx);
+            System.out.println("BoxSpeed: " + boxdx + "," + boxdy);
             return false;
         }
         int actualDirection = 0;
@@ -382,11 +385,15 @@ public class Tester {
             p1 = getPoint2(r);
             horizontal = false;
         } else {
+            System.out.println("angle wrong: " + angle);
             return -1;
         }
 
         Rectangle2D collisionBox = grow(b.getRect(),MAX_ERROR);
         if ((!collisionBox.intersectsLine(new Line2D.Double(p1,p2)))) {
+            System.out.println("Not connected");
+            System.out.println(b.getRect());
+            System.out.println(p1 + " " + p2);
             return -1;
         }
 
@@ -402,6 +409,7 @@ public class Tester {
             } else {return 4;}
         }
 
+        System.out.println("No idea");
         return -1;
     }
 
