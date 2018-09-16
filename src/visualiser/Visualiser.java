@@ -83,7 +83,7 @@ public class Visualiser {
     private boolean hasSolution;
 
     private static final int FRAMERATE_MIN = 1;
-    private static final int FRAMERATE_MAX = 200;
+    private static final int FRAMERATE_MAX = 1000;
     private static final int FRAMERATE_INIT = 50;
 
     private static final int SAMPLING_PERIOD_INIT = 100;
