@@ -177,17 +177,15 @@ public class MoveableBoxAction {
     public void solveRobotPath(Robot previousRobotPosition) throws NoPathException {
         Robot pushingPosition = getRobotPushingPosition();
 
-        if (previousRobotPosition != null) {
-            // Create an RRT for the robot
-            RobotRRT rrt = new RobotRRT(previousRobotPosition, pushingPosition, initialBox);
+        // Create an RRT for the robot
+        RobotRRT rrt = new RobotRRT(previousRobotPosition, pushingPosition, initialBox);
 
-            // Solve the rrt
-            if (rrt.solve()) {
-                robotPath = rrt.getSolution().actionPathFromRoot();
-            } else {
-                // No path found
-                throw new NoPathException();
-            }
+        // Solve the rrt
+        if (rrt.solve()) {
+            robotPath = rrt.getSolution().actionPathFromRoot();
+        } else {
+            // No path found
+            throw new NoPathException();
         }
 
         // Add the action that moves the box

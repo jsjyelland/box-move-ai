@@ -119,9 +119,6 @@ public class MoveableObstacleRRT extends MoveableBoxRRT {
 
             robotPath = robotPaths;
 
-            RobotActionVisualiser visualiser = new RobotActionVisualiser(robotPath);
-            Window window = new Window(visualiser);
-
             // This solution was valid. Update the workspace
             Workspace.overwriteLastAndRemove();
 

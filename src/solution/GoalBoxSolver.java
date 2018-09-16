@@ -90,8 +90,8 @@ public class GoalBoxSolver {
      * @return the robot path
      */
     public ArrayList<RobotAction> solve() throws NoPathException {
-        ArrayList<TreeNode<MoveableBoxState, MoveableBoxAction>> rrtSolutions = new ArrayList<>();
         ArrayList<GoalBoxRRT> rrtList = new ArrayList<>();
+        ArrayList<TreeNode<MoveableBoxState, MoveableBoxAction>> rrtSolutions = new ArrayList<>();
 
         for (int i = 0; i < Workspace.getInstance().getGoalBoxes().size(); i++) {
             GoalBoxRRT rrt = new GoalBoxRRT(Workspace.getInstance().getGoalBoxes().get(i),
@@ -107,13 +107,22 @@ public class GoalBoxSolver {
             }
         }
 
-        // TODO order the list of rrts based on which ones need to be solved first
+        // Order the list of RRTs based on which ones need to be solved first
+        ArrayList<GoalBoxRRT> orderedRRTList;
+
+        try {
+            orderedRRTList = calculateRRTOrder(rrtList);
+        } catch (NoRRTOrderException e) {
+            // No order could be found, solving has failed
+            throw new NoPathException();
+        }
 
         Robot previousRobotPosition = robotStartingPosition;
 
         ArrayList<RobotAction> robotPath = new ArrayList<>();
 
-        for (GoalBoxRRT rrt : rrtList) {
+        // Move moveable obstacles
+        for (GoalBoxRRT rrt : orderedRRTList) {
             robotPath.addAll(rrt.solveMoveableObstacles(rrtSolutions, previousRobotPosition));
 
             if (robotPath.size() > 0) {
@@ -121,7 +130,8 @@ public class GoalBoxSolver {
             }
         }
 
-        for (GoalBoxRRT rrt : rrtList) {
+        // Solve the robot path
+        for (GoalBoxRRT rrt : orderedRRTList) {
             robotPath.addAll(rrt.solveRobotPath(previousRobotPosition));
 
             if (robotPath.size() > 0) {
@@ -130,6 +140,78 @@ public class GoalBoxSolver {
         }
 
         return robotPath;
+    }
+
+    /**
+     * Calculate the order of the RRT list so that each one is solvable without colliding with the
+     * previous
+     *
+     * @param rrtList the unordered list of RRTs
+     *
+     * @return the ordered list of RRTs
+     *
+     * @throws NoRRTOrderException if no order could be found
+     */
+    private ArrayList<GoalBoxRRT> calculateRRTOrder(ArrayList<GoalBoxRRT> rrtList)
+            throws NoRRTOrderException {
+        if (rrtList.size() == 1) {
+            return rrtList;
+        }
+
+        for (GoalBoxRRT rrt : rrtList) {
+            // Remove rrt from the list
+            ArrayList<GoalBoxRRT> remaining = new ArrayList<>(rrtList);
+            remaining.remove(rrt);
+
+            ArrayList<GoalBoxRRT> order;
+
+            // Pick an order for the remaining items
+            order = calculateRRTOrder(remaining);
+
+            // Add the item to the ordered list
+            order.add(rrt);
+
+            if (checkRRTOrder(order)) {
+                // This order is valid
+                return order;
+            }
+        }
+
+        // No way to order this list
+        throw new NoRRTOrderException();
+    }
+
+    /**
+     * Check if an ordering of RRTs is valid
+     *
+     * @param rrtList the list of RRTs
+     *
+     * @return whether the order is valid or not
+     */
+    private boolean checkRRTOrder(ArrayList<GoalBoxRRT> rrtList) {
+        for (int i = 0; i < rrtList.size(); i++) {
+            for (int j = 0; j < rrtList.size(); j++) {
+                if (j < i) {
+                    // Check to make sure #i doesn't intersect #j's final position
+                    for (MoveableBoxAction action :
+                            rrtList.get(i).getSolution().actionPathFromRoot()) {
+                        if (action.getMovementBox().intersects(rrtList.get(j).getGoalBox())) {
+                            return false;
+                        }
+                    }
+                } else if (j > i) {
+                    // Check to make sure #i doesn't intersect #j's starting position
+                    for (MoveableBoxAction action :
+                            rrtList.get(i).getSolution().actionPathFromRoot()) {
+                        if (action.getMovementBox().intersects(rrtList.get(j).getInitialBox())) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+
+        return true;
     }
 
     /**
