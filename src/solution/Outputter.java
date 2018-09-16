@@ -68,7 +68,7 @@ public class Outputter {
             double numSteps = ceil(actionSize / 0.1);
 
             // Step along the line, adding a robot action to robotPathPrimitive each time
-            for (double i = 0; i < numSteps; i++) {
+            for (int i = 0; i < numSteps; i++) {
 
                 // Calculate the new initial and final robot positions
                 Robot newInitialRobot = action.getInitialRobot().clone();
@@ -118,8 +118,8 @@ public class Outputter {
 
         }
 
-        // First line: number of steps
-        bw.write(Integer.toString(robotPathPrimitive.size()));
+        // First line: number of steps (+ 1)
+        bw.write(Integer.toString(robotPathPrimitive.size() + 1));
         bw.newLine();
 
         // Second line: initial configuration
@@ -165,5 +165,7 @@ public class Outputter {
         // Complete the write
         bw.close();
         fw.close();
+
+        System.out.println("Output written! Success");
     }
 }
