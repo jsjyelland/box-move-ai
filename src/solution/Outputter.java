@@ -82,7 +82,7 @@ public class Outputter {
                     action.getFinalRobot()
             );
 
-            double numSteps = ceil(actionSize / 0.0005);
+            double numSteps = ceil(actionSize / 0.001);
 
             // Step along the line, adding a robot action to robotPathPrimitive each time
             for (int i = 0; i < numSteps; i++) {
