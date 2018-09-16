@@ -24,33 +24,33 @@ import java.util.Scanner;
  */
 public class ProblemSpec {
 	/** True iff a problem is currently loaded */
-	private boolean problemLoaded = false;
+	public boolean problemLoaded = false;
 	/** True iff a solution is currently loaded */
-	private boolean solutionLoaded = false;
+	public boolean solutionLoaded = false;
 
     /** The static obstacles */
-	private List<StaticObstacle> staticObstacles;
+	public List<StaticObstacle> staticObstacles;
 
     /** The static obstacles */
-	private double robotWidth;
+	public double robotWidth;
 
 	/** The initial configuration */
-	private RobotConfig initialRobotConfig;
+	public RobotConfig initialRobotConfig;
 
 	/** An array of moving boxes and obstacles */	
-	private List<Box> movingBoxes;
-    private List<Box> movingObstacles;
-    private List<Point2D> movingBoxEndPositions;
+	public List<Box> movingBoxes;
+    public List<Box> movingObstacles;
+    public List<Point2D> movingBoxEndPositions;
 
 	/** The number of each type of obstacle **/	
-    private int numMovingBoxes;
-    private int numMovingObstacles;
-	private int numStaticObstacles;
+    public int numMovingBoxes;
+    public int numMovingObstacles;
+	public int numStaticObstacles;
 	
 	/** The path of the robot, moving boxes, and moving obstacles **/		
-	private List<RobotConfig> robotPath = new ArrayList<>();
-	private List<List<Box>> movingBoxPath = new ArrayList<>();
-    private List<List<Box>> movingObstaclePath = new ArrayList<>();
+	public List<RobotConfig> robotPath = new ArrayList<>();
+	public List<List<Box>> movingBoxPath = new ArrayList<>();
+    public List<List<Box>> movingObstaclePath = new ArrayList<>();
 
 	
 	/** Returns the width of the robot **/		

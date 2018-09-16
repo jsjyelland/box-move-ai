@@ -1,8 +1,6 @@
 package solution;
 
-import problem.ProblemSpec;
-import problem.RobotConfig;
-import problem.StaticObstacle;
+import problem.*;
 import tester.Tester;
 
 import java.awt.geom.Line2D;
@@ -132,16 +130,7 @@ public class ProblemTester {
         } while (!verifyProblem(filename));
     }
 
-    public boolean verifyProblem(String filename) {
-        // Verify the configuration is valid
-        ProblemSpec ps = new ProblemSpec();
-        try {
-            ps.loadProblem(filename);
-        } catch (IOException e1) {
-            System.out.println("FAILED: Invalid problem file");
-            System.out.println(e1.getMessage());
-            return false;
-        }
+    public boolean verifyProblem(ProblemSpec ps) {
         Tester tester = new Tester(ps);
 
         List<problem.Box> movingObjects = new ArrayList<>();
@@ -186,8 +175,54 @@ public class ProblemTester {
             }
         }
 
-
         return true;
+    }
+
+    public boolean verifyProblem(String filename) {
+        // Verify the configuration is valid
+        ProblemSpec ps = new ProblemSpec();
+        try {
+            ps.loadProblem(filename);
+        } catch (IOException e1) {
+            System.out.println("FAILED: Invalid problem file");
+            System.out.println(e1.getMessage());
+            return false;
+        }
+        return verifyProblem(ps);
+    }
+
+    public boolean verifyProblem(Robot initialRobotConfiguration, ArrayList<MoveableBox> gBoxes,
+                                 ArrayList<MoveableBox> gBoxGoalPositions, ArrayList<MoveableBox> mObstacles, ArrayList<Box> sObstacles) {
+        // Verify the configuration is valid
+        ProblemSpec ps = new ProblemSpec();
+        // Add objects to ps
+
+        ps.initialRobotConfig = new RobotConfig(initialRobotConfiguration.getPos(), initialRobotConfiguration.getTheta());
+
+        ps.movingBoxEndPositions = new ArrayList<>();
+        ps.movingBoxes = new ArrayList<>();
+        ps.staticObstacles = new ArrayList<>();
+        ps.movingObstacles = new ArrayList<>();
+
+        for (MoveableBox goalBox: gBoxes) {
+            ps.movingBoxes.add(new MovingBox(new Point2D.Double(goalBox.getRect().getX(), goalBox.getRect().getY()), goalBox.getRect().getWidth()));
+        }
+
+        for (MoveableBox goalBoxGoalPosition: gBoxGoalPositions) {
+            ps.movingBoxEndPositions.add(new Point2D.Double(goalBoxGoalPosition.getRect().getX(), goalBoxGoalPosition.getRect().getY()));
+        }
+
+        for (MoveableBox moveableObstacle: mObstacles) {
+            ps.movingObstacles.add(new MovingObstacle(new Point2D.Double(moveableObstacle.getRect().getX(),
+                    moveableObstacle.getRect().getY()), moveableObstacle.getRect().getWidth()));
+        }
+
+        for (Box staticObstacle: sObstacles) {
+            ps.staticObstacles.add(new StaticObstacle(staticObstacle.getRect().getX(), staticObstacle.getRect().getY(),
+                    staticObstacle.getRect().getWidth(), staticObstacle.getRect().getHeight()));
+        }
+
+        return verifyProblem(ps);
     }
 
     public void generateProblem() {
@@ -225,23 +260,72 @@ public class ProblemTester {
         int moveableObstacleCount = 5;
         int staticObstacleCount = 10;
 
+        ArrayList<Box> allBoxes = new ArrayList<>();
+
         // Goal boxes
         for (int i = 0; i < goalBoxCount; i++) {
-            goalBoxes.add(new MoveableBox(width + random() * (1 - (2 * width)), width + random() * (1 - (2 * width)), width));
-            goalBoxGoalPositions.add(new MoveableBox(width + random() * (1 - (2 * width)), width + random() * (1 - (2 * width)), width));
+            MoveableBox box = null;
+            ArrayList<MoveableBox> goalBoxesNew;
+            for (int j = 0; j < 100; j++) {
+                box = new MoveableBox(random() * (1 - width), random() * (1 - width), width);
+                goalBoxesNew = (ArrayList<MoveableBox>)goalBoxes.clone();
+                goalBoxesNew.add(box);
+                if (verifyProblem(robotStartingPosition, goalBoxesNew, goalBoxGoalPositions, moveableObstacles, staticObstacles)) {
+                    break;
+                }
+            }
+            goalBoxes.add(box);
+
+            MoveableBox boxGoal = null;
+            ArrayList<MoveableBox> goalBoxGoalPositionsNew;
+            for (int j = 0; j < 100; j++) {
+                boxGoal = new MoveableBox(random() * (1 - width), random() * (1 - width), width);
+                goalBoxGoalPositionsNew = (ArrayList<MoveableBox>)goalBoxGoalPositions.clone();
+                goalBoxGoalPositionsNew.add(boxGoal);
+                if (verifyProblem(robotStartingPosition, goalBoxes, goalBoxGoalPositionsNew, moveableObstacles, staticObstacles)) {
+                    break;
+                }
+            }
+            goalBoxGoalPositions.add(boxGoal);
+
+            System.out.println("Goal Boxes added: " + i);
         }
 
         // Moveable obstacles
         for (int i = 0; i < moveableObstacleCount; i++) {
             double boxWidth = (random() * 0.5 + 1) * width; // w - 1.5w
-            moveableObstacles.add(new MoveableBox(boxWidth + random() * (1 - (2 * boxWidth)), boxWidth + random() * (1 - (2 * boxWidth)), boxWidth));
+            MoveableBox box = null;
+            ArrayList<MoveableBox> moveableObstaclesNew;
+            for (int j = 0; j < 100; j++) {
+                box = new MoveableBox(random() * (1 - boxWidth), random() * (1 - boxWidth), boxWidth);
+                moveableObstaclesNew = (ArrayList<MoveableBox>)moveableObstacles.clone();
+                moveableObstaclesNew.add(box);
+                if (verifyProblem(robotStartingPosition, goalBoxes, goalBoxGoalPositions, moveableObstaclesNew, staticObstacles)) {
+                    break;
+                }
+            }
+            moveableObstacles.add(box);
+
+            System.out.println("Moveable obstacles added: " + i);
         }
 
         // Static obstacles
         for (int i = 0; i < staticObstacleCount; i++) {
             double boxWidth = (random() * 0.15 + 0.05); // 0.05 - 0.2
             double boxHeight = (random() * 0.15 + 0.05); // 0.05 - 0.2
-            staticObstacles.add(new Box(boxWidth + random() * (1 - (2 * boxWidth)), boxHeight + random() * (1 - (2 * boxHeight)), boxWidth, boxHeight));
+            Box box = null;
+            ArrayList<Box> staticObstaclesNew;
+            for (int j = 0; j < 100; j++) {
+                box = new Box(random() * (1 - boxWidth), random() * (1 - boxHeight), boxWidth, boxHeight);
+                staticObstaclesNew = (ArrayList<Box>)staticObstacles.clone();
+                staticObstaclesNew.add(box);
+                if (verifyProblem(robotStartingPosition, goalBoxes, goalBoxGoalPositions, moveableObstacles, staticObstaclesNew)) {
+                    break;
+                }
+            }
+            staticObstacles.add(box);
+
+            System.out.println("Static obstacles added: " + i);
         }
     }
 }
