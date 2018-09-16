@@ -59,6 +59,7 @@ public class Main {
                 // We lost a box or couldn't find a path, try again
                 e.printStackTrace();
                 Workspace.undo();
+//                break;
             }
         }
     }

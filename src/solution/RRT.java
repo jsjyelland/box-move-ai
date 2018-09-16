@@ -84,14 +84,6 @@ public abstract class RRT<T extends State, U> {
      * Solve this rrt. If a visualiser is attached, the solution will be drawn on it.
      */
     public boolean solve() {
-        if (checkSolution(tree)) {
-            if (visualiserAttached()) {
-                visualiser.paintSolution(solutionNode);
-            }
-
-            return true;
-        }
-
         while (nodes.size() <= MAX_NODES) {
             if (expand()) {
                 if (visualiserAttached()) {

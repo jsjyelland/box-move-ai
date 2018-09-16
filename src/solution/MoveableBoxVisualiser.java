@@ -85,6 +85,20 @@ public class MoveableBoxVisualiser extends Visualiser<MoveableBoxState, Moveable
             Graphics2D g2) {
         g2.setColor(Color.MAGENTA);
 
+        // Draw all the static obstacles
+        g2.setColor(Color.BLACK);
+        for (Box obstacle : Workspace.getInstance().getStaticObstacles()) {
+            Shape shape = transform.createTransformedShape(obstacle.getRect());
+            g2.fill(shape);
+        }
+
+        // Draw all the moveable obstacles
+        g2.setColor(Color.GREEN);
+        for (Box obstacle : Workspace.getInstance().getMoveableObstacles()) {
+            Shape shape = transform.createTransformedShape(obstacle.getRect());
+            g2.fill(shape);
+        }
+
         // Transform the final position
         Shape transformedShape = transform.createTransformedShape(
                 node.getState().getMainBox().getRect()
