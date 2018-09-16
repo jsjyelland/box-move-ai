@@ -43,7 +43,7 @@ public class RobotState extends State {
         RobotState newState = clone();
 
         double distance = distanceDelta(dx, dy, dtheta);
-        double numSteps = ceil(distance / 0.001);
+        double numSteps = ceil(distance / 0.0005);
 
         // Step along the line, checking the robot configuration at each step
         for (double i = 1; i <= numSteps; i++) {

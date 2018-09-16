@@ -54,9 +54,13 @@ public class ProblemTester {
                 e.printStackTrace();
             }
 
+            System.out.println("Problem created");
+
             // Solve it
 
             Main.main(args);
+
+            visualiser.Visualiser.main(args);
 
             // Test it
             ProblemSpec ps = new ProblemSpec();
@@ -78,9 +82,9 @@ public class ProblemTester {
             if (tester.testSolutionReturn()) {
                 count ++;
                 System.out.println(count + " random problems solved!");
+
             } else {
                 System.out.println("Random solution failed! Problems passed: " + count);
-                visualiser.Visualiser.main(args);
                 return;
             }
         }
@@ -146,30 +150,30 @@ public class ProblemTester {
         Rectangle2D border = new Rectangle2D.Double(0,0,1,1);
         for (StaticObstacle o1: ps.getStaticObstacles()) {
             if (!border.contains(o1.getRect())) {
-                System.out.println("Static box outside of border");
+//                System.out.println("Static box outside of border");
                 return false;
             }
             for (StaticObstacle o2: ps.getStaticObstacles()) {
                 if ((!o1.equals(o2)) && (o1.getRect().intersects(o2.getRect()))) {
-                    System.out.println("Static obstacle collided with static obstacle");
+//                    System.out.println("Static obstacle collided with static obstacle");
                     return false;
                 }
             }
             for (MoveableBox goalBoxLocation : goalBoxGoalPositions) {
                 if(o1.getRect().intersects(goalBoxLocation.getRect())) {
-                    System.out.println("Goal box location collied with static obstacle");
+//                    System.out.println("Goal box location collied with static obstacle");
                     return false;
                 }
             }
         }
         for (MoveableBox goalBoxLocation : goalBoxGoalPositions) {
             if(!border.contains(goalBoxLocation.getRect())) {
-                System.out.println("Goal box location outside of border");
+//                System.out.println("Goal box location outside of border");
                 return false;
             }
             for (MoveableBox goalBoxLocation2 : goalBoxGoalPositions) {
                 if ((!goalBoxLocation.equals(goalBoxLocation2)) && (goalBoxLocation.getRect().intersects(goalBoxLocation2.getRect()))) {
-                    System.out.println("Goal box end points collided");
+//                    System.out.println("Goal box end points collided");
                     return false;
                 }
             }
@@ -288,7 +292,7 @@ public class ProblemTester {
             }
             goalBoxGoalPositions.add(boxGoal);
 
-            System.out.println("Goal Boxes added: " + i);
+//            System.out.println("Goal Boxes added: " + i);
         }
 
         // Moveable obstacles
@@ -306,7 +310,7 @@ public class ProblemTester {
             }
             moveableObstacles.add(box);
 
-            System.out.println("Moveable obstacles added: " + i);
+//            System.out.println("Moveable obstacles added: " + i);
         }
 
         // Static obstacles
@@ -325,7 +329,7 @@ public class ProblemTester {
             }
             staticObstacles.add(box);
 
-            System.out.println("Static obstacles added: " + i);
+//            System.out.println("Static obstacles added: " + i);
         }
     }
 }
