@@ -70,8 +70,10 @@ public class Outputter {
         allBoxes.addAll(initialMoveableObstacles);
 
         ArrayList<MoveableBox> allBoxesInitialDeepClone = new ArrayList<>();
+        ArrayList<MoveableBox> allBoxesDeepCloneForWholeActions = new ArrayList<>();
         for (MoveableBox box : allBoxes) {
             allBoxesInitialDeepClone.add(box.clone());
+            allBoxesDeepCloneForWholeActions.add(box.clone());
         }
 
         ArrayList<ArrayList<MoveableBox>> allBoxesList = new ArrayList<>();
@@ -120,7 +122,7 @@ public class Outputter {
                                 (i + 1) / numSteps * action.getDy()
                         );
                     } catch (IndexOutOfBoundsException e) {
-                        System.out.println(allBoxes);
+                        System.out.println(allBoxesDeepCloneForWholeActions);
                         System.out.println(action.getBoxPushing());
 
                         // This is pretty ridiculous but whatever
@@ -132,13 +134,13 @@ public class Outputter {
             }
 
             if (action.getBoxPushing() != null) {
-                int boxPushedIndex = allBoxes.indexOf(action.getBoxPushing());
+                int boxPushedIndex = allBoxesDeepCloneForWholeActions.indexOf(action.getBoxPushing());
 
                 try {
-                    MoveableBox boxPushed = allBoxes.get(boxPushedIndex);
+                    MoveableBox boxPushed = allBoxesDeepCloneForWholeActions.get(boxPushedIndex);
                     boxPushed.move(action.getDx(), action.getDy());
                 } catch (IndexOutOfBoundsException e) {
-                    System.out.println(allBoxes);
+                    System.out.println(allBoxesDeepCloneForWholeActions);
                     System.out.println(action.getBoxPushing());
 
                     // This is pretty ridiculous but whatever
