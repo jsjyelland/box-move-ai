@@ -37,22 +37,10 @@ public class MoveableObstacleRRT extends MoveableBoxRRT {
     protected boolean checkMoveableBoxPath(
             TreeNode<MoveableBoxState, MoveableBoxAction> newestNode) {
         for (TreeNode<MoveableBoxState, MoveableBoxAction> solutionLeaf : solutionLeaves) {
-            // Start at the current leaf
-            TreeNode<MoveableBoxState, MoveableBoxAction> currentNode = solutionLeaf;
-
-            // Move up the tree to the root
-            while (currentNode.getParent() != null) {
-                TreeNode<MoveableBoxState, MoveableBoxAction> parent = currentNode.getParent();
-
-                // Create a union representing the path from each node to its parent
-                Box union = currentNode.getAction().getMovementBox();
-
-                // Check if the solution intersects the path
-                if (newestNode.getState().getMainBox().intersects(union)) {
+            for (MoveableBoxAction action : solutionLeaf.actionPathFromRoot()) {
+                if (newestNode.getState().getMainBox().intersects(action.getMovementBox())) {
                     return false;
                 }
-
-                currentNode = parent;
             }
         }
 
