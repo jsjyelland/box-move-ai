@@ -15,6 +15,8 @@ public class Main {
             return;
         }
 
+        long time = System.currentTimeMillis();
+
         // Loop until a solution is found
         while (true) {
             try {
@@ -27,6 +29,11 @@ public class Main {
                 );
 
                 outputter.writeSolution(args[1]);
+
+                // Time taken to solve
+                System.out.println(
+                        "Time taken: " + (System.currentTimeMillis() - time) / 1000 + "s"
+                );
 
                 break;
             } catch (IOException | ArrayIndexOutOfBoundsException e) {
