@@ -161,8 +161,26 @@ public class ProblemTester {
                 return false;
             }
             for (StaticObstacle o2: ps.getStaticObstacles()) {
-                if (o1.getRect().intersects(o2.getRect())) {
+                if ((!o1.equals(o2)) && (o1.getRect().intersects(o2.getRect()))) {
                     System.out.println("Static obstacle collided with static obstacle");
+                    return false;
+                }
+            }
+            for (MoveableBox goalBoxLocation : goalBoxGoalPositions) {
+                if(o1.getRect().intersects(goalBoxLocation.getRect())) {
+                    System.out.println("Goal box location collied with static obstacle");
+                    return false;
+                }
+            }
+        }
+        for (MoveableBox goalBoxLocation : goalBoxGoalPositions) {
+            if(!border.contains(goalBoxLocation.getRect())) {
+                System.out.println("Goal box location outside of border");
+                return false;
+            }
+            for (MoveableBox goalBoxLocation2 : goalBoxGoalPositions) {
+                if ((!goalBoxLocation.equals(goalBoxLocation2)) && (goalBoxLocation.getRect().intersects(goalBoxLocation2.getRect()))) {
+                    System.out.println("Goal box end points collided");
                     return false;
                 }
             }
@@ -196,30 +214,34 @@ public class ProblemTester {
             newAngle = random() * 2 * PI;
         }
 
-        robotStartingPosition = new Robot(random(), random(), newAngle, width);
+        robotStartingPosition = new Robot(width + random() * (1 - (2 * width)), width + random() * (1 - (2 * width)), newAngle, width);
 
         // Box counts
-        int goalBoxCount = (int) (random() * 3 + 8); // 8 - 10 goalBoxes
-        int moveableObstacleCount = (int) (random() * 3 + 6); // 6 - 8 moveableObstacles
-        int staticObstacleCount = (int) (random() * 13); // 0 - 12 staticObstacles
+//        int goalBoxCount = (int) (random() * 3 + 8); // 8 - 10 goalBoxes
+//        int moveableObstacleCount = (int) (random() * 3 + 6); // 6 - 8 moveableObstacles
+//        int staticObstacleCount = (int) (random() * 11) + 2; // 2 - 12 staticObstacles
+
+        int goalBoxCount = 5;
+        int moveableObstacleCount = 3;
+        int staticObstacleCount = 5;
 
         // Goal boxes
         for (int i = 0; i < goalBoxCount; i++) {
-            goalBoxes.add(new MoveableBox(random(), random(), width));
-            goalBoxGoalPositions.add(new MoveableBox(random(), random(), width));
+            goalBoxes.add(new MoveableBox(width + random() * (1 - (2 * width)), width + random() * (1 - (2 * width)), width));
+            goalBoxGoalPositions.add(new MoveableBox(width + random() * (1 - (2 * width)), width + random() * (1 - (2 * width)), width));
         }
 
         // Moveable obstacles
         for (int i = 0; i < moveableObstacleCount; i++) {
             double boxWidth = (random() * 0.5 + 1) * width; // w - 1.5w
-            moveableObstacles.add(new MoveableBox(random(), random(), boxWidth));
+            moveableObstacles.add(new MoveableBox(boxWidth + random() * (1 - (2 * boxWidth)), boxWidth + random() * (1 - (2 * boxWidth)), boxWidth));
         }
 
         // Static obstacles
         for (int i = 0; i < staticObstacleCount; i++) {
-            double boxWidth = (random() * 3.5 + 0.5) * width;
-            double boxHeight = (random() * 3.5 + 0.5) * width;
-            staticObstacles.add(new Box(random(), random(), boxWidth, boxHeight));
+            double boxWidth = (random() * 0.15 + 0.05); // 0.05 - 0.2
+            double boxHeight = (random() * 0.15 + 0.05); // 0.05 - 0.2
+            staticObstacles.add(new Box(boxWidth + random() * (1 - (2 * boxWidth)), boxHeight + random() * (1 - (2 * boxHeight)), boxWidth, boxHeight));
         }
     }
 }
