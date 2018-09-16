@@ -65,7 +65,7 @@ public class Outputter {
 
         for (RobotAction action : robotPath) {
             double actionSize = action.getInitialRobot().distanceToOtherRobot(action.getFinalRobot());
-            double numSteps = ceil(actionSize / 0.1);
+            double numSteps = ceil(actionSize / 0.0005);
 
             // Step along the line, adding a robot action to robotPathPrimitive each time
             for (double i = 0; i < numSteps; i++) {

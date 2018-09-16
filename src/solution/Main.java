@@ -35,6 +35,7 @@ public class Main {
                 break;
             } catch (NoPathException | BoxLostException e) {
                 // We lost a box or couldn't find a path, try again
+                e.printStackTrace();
                 Workspace.undo();
             }
         }
