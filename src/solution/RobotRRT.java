@@ -127,9 +127,10 @@ public class RobotRRT extends RRT<RobotState, RobotAction> {
         double newAngle;
         double chance = random();
 
-        if (chance < 0.4) {
+        // Bias towards horizontal and vertical
+        if (chance < 0.45) {
             newAngle = 0;
-        } else if (chance < 0.8) {
+        } else if (chance < 0.9) {
             newAngle = PI / 2;
         } else {
             newAngle = random() * 2 * PI;
