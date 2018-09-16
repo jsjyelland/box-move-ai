@@ -23,7 +23,6 @@ public class RobotAction {
      */
     private MoveableBox boxPushing;
 
-
     /**
      * Construct a RobotAction
      *
