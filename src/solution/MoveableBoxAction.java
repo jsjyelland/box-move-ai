@@ -103,7 +103,7 @@ public class MoveableBoxAction {
                         obstacleRRT.getSolution().getState().getMainBox()
                 );
             } else {
-                throw new NoPathException();
+                throw new NoPathException("Couldn't find a path to move a MoveableObstacle out of the way.");
             }
         }
 
@@ -185,7 +185,7 @@ public class MoveableBoxAction {
             robotPath = rrt.getSolution().actionPathFromRoot();
         } else {
             // No path found
-            throw new NoPathException();
+            throw new NoPathException("Couldn't find a path for the robot.");
         }
 
         // Add the action that moves the box
