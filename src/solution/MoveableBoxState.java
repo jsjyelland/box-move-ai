@@ -154,7 +154,7 @@ public class MoveableBoxState extends State {
      *
      * @param mainBox the main box
      */
-    public void setMainBox(MoveableBox mainBox) {
+    private void setMainBox(MoveableBox mainBox) {
         this.mainBox = mainBox;
     }
 

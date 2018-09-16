@@ -52,7 +52,7 @@ public abstract class RRT<T extends State, U> {
      *
      * @return if a solution is found or not
      */
-    public boolean expand() {
+    private boolean expand() {
         // Sample a random node in free space
         while (true) {
             try {

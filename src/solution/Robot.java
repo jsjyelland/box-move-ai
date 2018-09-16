@@ -73,7 +73,7 @@ public class Robot {
      *
      * @return the x position of end 1
      */
-    public double getX1() {
+    private double getX1() {
         return pos.getX() - cos(theta) * width / 2;
     }
 
@@ -82,7 +82,7 @@ public class Robot {
      *
      * @return the x position of end 2
      */
-    public double getX2() {
+    private double getX2() {
         return pos.getX() + cos(theta) * width / 2;
     }
 
@@ -91,7 +91,7 @@ public class Robot {
      *
      * @return the y position of end 1
      */
-    public double getY1() {
+    private double getY1() {
         return pos.getY() - sin(theta) * width / 2;
     }
 
@@ -100,7 +100,7 @@ public class Robot {
      *
      * @return the y position of end 2
      */
-    public double getY2() {
+    private double getY2() {
         return pos.getY() + sin(theta) * width / 2;
     }
 
@@ -109,7 +109,7 @@ public class Robot {
      *
      * @return the point end 1
      */
-    public Point2D getP1() {
+    private Point2D getP1() {
         return new Point2D.Double(getX1(), getY1());
     }
 
@@ -118,7 +118,7 @@ public class Robot {
      *
      * @return the point end 2
      */
-    public Point2D getP2() {
+    private Point2D getP2() {
         return new Point2D.Double(getX2(), getY2());
     }
 
@@ -177,15 +177,17 @@ public class Robot {
     }
 
     /**
-     * Calculate the distance between this robot and a second robot. This represents maximum distance the
-     * ends of the robot will have to move
+     * Calculate the distance between this robot and a second robot. This represents maximum
+     * distance the ends of the robot will have to move
+     *
      * @param other the other robot
+     *
      * @return the maximum distance
      */
     public double distanceToOtherRobot(Robot other) {
-        return sqrt(
-                max(pow(other.getX1() - getX1(), 2) + pow(other.getY1() - getY1(), 2),
-                pow(other.getX2() - getX2(), 2) + pow(other.getY2() - getY2(), 2)));
+        return sqrt(max(pow(other.getX1() - getX1(), 2) + pow(other.getY1() - getY1(), 2),
+                pow(other.getX2() - getX2(), 2) + pow(other.getY2() - getY2(), 2)
+        ));
     }
 
     /**

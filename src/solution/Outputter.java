@@ -12,21 +12,20 @@ import static java.lang.Math.ceil;
  * Saves a problem solution to an output file
  */
 public class Outputter {
-
     /**
      * The path the robot takes
      */
-    ArrayList<RobotAction> robotPath;
+    private ArrayList<RobotAction> robotPath;
 
     /**
      * The initial configuration of the moveable obstacles
      */
-    ArrayList<MoveableBox> initialMoveableObstacles;
+    private ArrayList<MoveableBox> initialMoveableObstacles;
 
     /**
      * The initial configuration of the goal boxes
      */
-    ArrayList<MoveableBox> initialGoalBoxes;
+    private ArrayList<MoveableBox> initialGoalBoxes;
 
     /**
      * Construct an outputter with a robot path
@@ -82,7 +81,7 @@ public class Outputter {
                     action.getFinalRobot()
             );
 
-            double numSteps = ceil(actionSize / 0.001);
+            double numSteps = ceil(actionSize / 0.0005);
 
             // Step along the line, adding a robot action to robotPathPrimitive each time
             for (int i = 0; i < numSteps; i++) {

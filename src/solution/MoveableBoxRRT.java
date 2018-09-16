@@ -11,7 +11,7 @@ public abstract class MoveableBoxRRT extends RRT<MoveableBoxState, MoveableBoxAc
     /**
      * The initial box
      */
-    protected MoveableBox initialBox;
+    private MoveableBox initialBox;
 
     /**
      * The path to move the robot

@@ -89,20 +89,13 @@ public class RobotAction {
      */
     public double getDtheta() {
         double smallestAngle = smallestAngleBetween(finalRobot.getTheta(), initialRobot.getTheta());
-        double dtheta = angleBetween(initialRobot.getTheta(), finalRobot.getTheta()) < PI ? smallestAngle : -smallestAngle;
-        return dtheta;
-    }
-
-    /**
-     * Set the box the robot is pushing
-     * @param boxPushing the box the robot is pushing
-     */
-    public void setBoxPushing(MoveableBox boxPushing) {
-        this.boxPushing = boxPushing;
+        return angleBetween(initialRobot.getTheta(), finalRobot.getTheta()) < PI ?
+                                smallestAngle : -smallestAngle;
     }
 
     /**
      * Get the box the robot is pushing
+     *
      * @return the box the robot is pushing
      */
     public MoveableBox getBoxPushing() {

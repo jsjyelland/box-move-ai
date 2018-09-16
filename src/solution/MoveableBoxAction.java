@@ -103,7 +103,9 @@ public class MoveableBoxAction {
                         obstacleRRT.getSolution().getState().getMainBox()
                 );
             } else {
-                throw new NoPathException("Couldn't find a path to move a MoveableObstacle out of the way.");
+                throw new NoPathException(
+                        "Couldn't find a path to move a MoveableObstacle out of the way."
+                );
             }
         }
 
@@ -115,7 +117,7 @@ public class MoveableBoxAction {
      *
      * @return the x distance moved
      */
-    public double getDx() {
+    private double getDx() {
         return finalBox.getRect().getX() - initialBox.getRect().getX();
     }
 
@@ -124,7 +126,7 @@ public class MoveableBoxAction {
      *
      * @return the y distance moved
      */
-    public double getDy() {
+    private double getDy() {
         return finalBox.getRect().getY() - initialBox.getRect().getY();
     }
 
@@ -142,7 +144,7 @@ public class MoveableBoxAction {
      *
      * @return the initial position of the robot
      */
-    public Robot getRobotPushingPosition() {
+    private Robot getRobotPushingPosition() {
         return new Robot(
                 new Point2D.Double(
                         initialBox.getRect().getCenterX() +
@@ -160,7 +162,7 @@ public class MoveableBoxAction {
      *
      * @return the final position of the robot
      */
-    public Robot getFinalRobotPosition() {
+    private Robot getFinalRobotPosition() {
         Robot initialRobot = getRobotPushingPosition();
         initialRobot.move(getDx(), getDy(), 0);
         return initialRobot;

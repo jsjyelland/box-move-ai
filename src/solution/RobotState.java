@@ -164,8 +164,12 @@ public class RobotState extends State {
         double dx = robotState.getRobot().getX() - robot.getX();
         double dy = robotState.getRobot().getY() - robot.getY();
 
-        double smallestAngle = smallestAngleBetween(robotState.getRobot().getTheta(), robot.getTheta());
-        double dtheta = angleBetween(robot.getTheta(), robotState.getRobot().getTheta()) < PI ? smallestAngle : -smallestAngle;
+        double smallestAngle = smallestAngleBetween(robotState.getRobot().getTheta(),
+                robot.getTheta()
+        );
+
+        double dtheta = angleBetween(robot.getTheta(), robotState.getRobot().getTheta()) < PI ?
+                                smallestAngle : -smallestAngle;
 
         Robot newRobot = new Robot(
                 robot.getX() + (delta / distance) * dx,
@@ -205,7 +209,7 @@ public class RobotState extends State {
      *
      * @return whether the state is valid or not
      */
-    public boolean isValid(ArrayList<Box> obstacles, Box boxPushing) {
+    private boolean isValid(ArrayList<Box> obstacles, Box boxPushing) {
         return isValid(obstacles) && robot.isValid(new ArrayList<>(Arrays.asList(boxPushing)));
     }
 

@@ -41,7 +41,6 @@ public class RobotActionVisualiser extends JComponent {
             g2.fill(shape);
         }
 
-
         int lastX = -1;
         int lastY = -1;
 
@@ -70,7 +69,6 @@ public class RobotActionVisualiser extends JComponent {
                 lastX = nodeX;
                 lastY = nodeY;
             }
-
         }
     }
 }

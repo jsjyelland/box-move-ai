@@ -58,7 +58,7 @@ public class TreeNode<T, U> {
      *
      * @param parent the parent to set
      */
-    public void setParent(TreeNode<T, U> parent) {
+    private void setParent(TreeNode<T, U> parent) {
         this.parent = parent;
     }
 

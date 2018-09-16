@@ -71,10 +71,22 @@ public class Box {
         return new Box(rect.createUnion(otherBox.rect));
     }
 
+    /**
+     * Get the underlying rectangle
+     *
+     * @return the rectangle
+     */
     public Rectangle2D getRect() {
         return rect;
     }
 
+    /**
+     * Calculate the distance to another box
+     *
+     * @param other the other box
+     *
+     * @return the distance between the boxes
+     */
     public double distanceTo(Box other) {
         return sqrt(
                 pow(other.getRect().getX() - rect.getX(), 2) +
@@ -117,20 +129,20 @@ public class Box {
     @Override
     public boolean equals(Object obj) {
         double MAX_ERROR = 0.00001;
+
         if (obj instanceof Box) {
             Box box = (Box) obj;
-//            return rect.equals(box.rect);
+
             if (box.rect == rect) {
                 return true;
             }
-            if (box.rect instanceof Rectangle2D) {
-                Rectangle2D r2d = (Rectangle2D) box.rect;
-                return ((abs(rect.getX() - r2d.getX()) < MAX_ERROR) &&
-                        (abs(rect.getY() - r2d.getY()) < MAX_ERROR) &&
-                        (abs(rect.getWidth() - r2d.getWidth()) < MAX_ERROR) &&
-                        (abs(rect.getHeight() - r2d.getHeight()) < MAX_ERROR));
-            }
-            return false;
+
+            // Check with an error
+            Rectangle2D r2d = box.rect;
+            return ((abs(rect.getX() - r2d.getX()) < MAX_ERROR) &&
+                            (abs(rect.getY() - r2d.getY()) < MAX_ERROR) &&
+                            (abs(rect.getWidth() - r2d.getWidth()) < MAX_ERROR) &&
+                            (abs(rect.getHeight() - r2d.getHeight()) < MAX_ERROR));
         }
 
         return false;

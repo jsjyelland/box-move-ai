@@ -235,14 +235,6 @@ public class Workspace {
         goalBoxes.add(newPosition);
     }
 
-    public boolean boxesToMove() {
-        return boxesNeedingMoving != null && boxesNeedingMoving.size() != 0;
-    }
-
-    public ArrayList<MoveableBox> getBoxesNeedingMoving() {
-        return new ArrayList<>(boxesNeedingMoving);
-    }
-
     /**
      * Set the robot width
      *
