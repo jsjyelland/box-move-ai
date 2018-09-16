@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import static java.lang.Math.ceil;
 
@@ -179,20 +178,6 @@ public class Outputter {
                              primitiveAction.getFinalRobot().getY() + " " +
                              primitiveAction.getFinalRobot().getTheta() + " "
             );
-
-            // Move a box if necessary
-//            if (primitiveAction.getBoxPushing() != null) {
-//                System.out.println(primitiveAction.getBoxPushing());
-//                int boxPushedIndex = allBoxes.indexOf(primitiveAction.getBoxPushing());
-//                try {
-//                    MoveableBox boxPushed = allBoxes.get(boxPushedIndex);
-//                    boxPushed.move(primitiveAction.getDx(), primitiveAction.getDy());
-////                    allBoxes.set(boxPushedIndex, action.getFinalBoxPushing());
-//                } catch (IndexOutOfBoundsException e) {
-//                    System.out.println(allBoxes);
-//                    System.out.println(primitiveAction.getBoxPushing());
-//                }
-//            }
 
             // Box configuration
             for (MoveableBox box : allBoxesSingle) {

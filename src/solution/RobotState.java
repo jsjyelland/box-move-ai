@@ -45,13 +45,13 @@ public class RobotState extends State {
         double numSteps = ceil(distance / 0.001);
 
         // Step along the line, checking the robot configuration at each step
-        for (double i = 0; i < numSteps; i++) {
+        for (double i = 1; i <= numSteps; i++) {
             // Clone this state and move the robot along a line
             newState = clone();
             newState.robot.move(i / numSteps * dx, i / numSteps * dy, i / numSteps * dtheta);
 
             // Check if this configuration is valid
-            if (i == 0 || i == numSteps - 1) {
+            if (i == 1 || i == numSteps) {
                 if (!newState.isValid()) {
                     throw new InvalidStateException();
                 }
