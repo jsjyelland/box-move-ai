@@ -66,6 +66,27 @@ public class Tester {
     }
 
     /**
+     * Returns true if all tests are passed and all boxes are in the correct location
+     */
+    public boolean testSolutionReturn() {
+        boolean pass = true;
+        if (ps.getProblemLoaded() && ps.getSolutionLoaded()) {
+            pass = testInitialFirst() && pass;
+            pass = testStepSize() && pass;
+            pass = testCollision() && pass;
+            pass = testPushedBox() && pass;
+        }
+        if (pass) {
+            int count = countGoals();
+            System.out.println(count + " out of " + ps.getMovingBoxes().size() + " goals reached");
+            if (count == ps.getMovingBoxes().size()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Count the amount of goals reached.
      * @return amount of goals reached.
      */
@@ -510,6 +531,7 @@ public class Tester {
      * @return true if no collision
      */
     public boolean hasCollision(RobotConfig r, List<Box> movingObjects) {
+
         Line2D robotLine = new Line2D.Double(getPoint1(r), getPoint2(r));
         Rectangle2D border = new Rectangle2D.Double(0,0,1,1);
         for (StaticObstacle o: ps.getStaticObstacles()) {
