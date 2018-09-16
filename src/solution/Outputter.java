@@ -107,14 +107,14 @@ public class Outputter {
 
                 // Clone allBoxes
                 ArrayList<MoveableBox> allBoxesDeepClone = new ArrayList<>();
-                for (MoveableBox box : allBoxes) {
+                for (MoveableBox box : allBoxesDeepCloneForWholeActions) {
                     allBoxesDeepClone.add(box.clone());
                 }
 
                 // Modify allBoxesDeepCopy to correctly move a box if necessary then add to
                 // AllBoxesList
                 if (action.getBoxPushing() != null) {
-                    int boxPushedIndex = allBoxes.indexOf(
+                    int boxPushedIndex = allBoxesDeepCloneForWholeActions.indexOf(
                             action.getBoxPushing());
                     try {
                         MoveableBox boxPushed = allBoxesDeepClone.get(boxPushedIndex);

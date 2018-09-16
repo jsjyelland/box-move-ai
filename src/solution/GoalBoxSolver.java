@@ -100,10 +100,10 @@ public class GoalBoxSolver {
 
             rrtList.add(rrt);
 
-            MoveableBoxVisualiser visualiser = new MoveableBoxVisualiser();
-            Window window = new Window(visualiser);
-
-            rrt.attachVisualiser(visualiser);
+//            MoveableBoxVisualiser visualiser = new MoveableBoxVisualiser();
+//            Window window = new Window(visualiser);
+//
+//            rrt.attachVisualiser(visualiser);
 
             if (rrt.solve()) {
                 rrtSolutions.add(rrt.getSolution());
