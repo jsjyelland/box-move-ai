@@ -446,6 +446,10 @@ public class Tester {
                 System.out.println("Collision at step " + i);
                 Robot robot1 = new Robot(robot.getPos(), robot.getOrientation(), ps.getRobotWidth());
                 ArrayList<solution.Box> obstacles= new ArrayList<>();
+                for(Box box: movingObjects) {
+                    solution.Box obstacle = new solution.Box(box.getRect());
+                    obstacles.add(obstacle);
+                }
                 System.out.println(robot1.isValid(obstacles));
                 pass = false;
             }

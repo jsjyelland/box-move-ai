@@ -38,7 +38,7 @@ public class RobotRRT extends RRT<RobotState, RobotAction> {
         // Check to make sure the initial and goal configurations are valid
         if (!initialRobot.isValid(Workspace.getInstance().getAllObstacles()) ||
                     !goalRobot.isValid(Workspace.getInstance().getAllObstacles())) {
-            throw new NoPathException();
+            throw new NoPathException("Initial or final states for the robot are not valid.");
         }
 
         this.initialRobot = initialRobot;

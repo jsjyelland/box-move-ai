@@ -221,9 +221,9 @@ public class ProblemTester {
 //        int moveableObstacleCount = (int) (random() * 3 + 6); // 6 - 8 moveableObstacles
 //        int staticObstacleCount = (int) (random() * 11) + 2; // 2 - 12 staticObstacles
 
-        int goalBoxCount = 5;
-        int moveableObstacleCount = 3;
-        int staticObstacleCount = 5;
+        int goalBoxCount = 10;
+        int moveableObstacleCount = 8;
+        int staticObstacleCount = 12;
 
         // Goal boxes
         for (int i = 0; i < goalBoxCount; i++) {

@@ -103,7 +103,7 @@ public class GoalBoxSolver {
             if (rrt.solve()) {
                 rrtSolutions.add(rrt.getSolution());
             } else {
-                throw new NoPathException();
+                throw new NoPathException("Couldn't find a path for a GoalBox.");
             }
         }
 
@@ -114,7 +114,7 @@ public class GoalBoxSolver {
             orderedRRTList = calculateRRTOrder(rrtList);
         } catch (NoRRTOrderException e) {
             // No order could be found, solving has failed
-            throw new NoPathException();
+            throw new NoPathException("No GoalBox ordering has no collision.", e);
         }
 
         Robot previousRobotPosition = robotStartingPosition;
