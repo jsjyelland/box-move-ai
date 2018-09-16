@@ -254,6 +254,9 @@ public abstract class MoveableBoxRRT extends RRT<MoveableBoxState, MoveableBoxAc
 
         finishPushBoxInWorkspace(solutionNode.getState().getMainBox());
 
+        RobotAction finalAction = robotPaths.get(robotPaths.size() - 1);
+        robotPaths.add(new RobotAction(finalAction.getFinalRobot(), finalAction.getInitialRobot()));
+
         return robotPaths;
     }
 

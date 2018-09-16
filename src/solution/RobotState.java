@@ -51,7 +51,11 @@ public class RobotState extends State {
             newState.robot.move(i / numSteps * dx, i / numSteps * dy, i / numSteps * dtheta);
 
             // Check if this configuration is valid
-            if (!(i == 0 || i == numSteps - 1) && !newState.isValid(boxToPush)) {
+            if (i == 0 || i == numSteps - 1) {
+                if (!newState.isValid()) {
+                    throw new InvalidStateException();
+                }
+            } else if (!newState.isValid(boxToPush)) {
                 throw new InvalidStateException();
             }
         }
