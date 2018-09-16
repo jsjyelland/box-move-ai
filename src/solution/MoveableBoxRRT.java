@@ -294,4 +294,13 @@ public abstract class MoveableBoxRRT extends RRT<MoveableBoxState, MoveableBoxAc
     protected void validateState(MoveableBoxState state) throws InvalidStateException {
         state.validate();
     }
+
+    /**
+     * Get the initial box
+     *
+     * @return the initial box
+     */
+    public MoveableBox getInitialBox() {
+        return initialBox;
+    }
 }

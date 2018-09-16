@@ -107,4 +107,13 @@ public class GoalBoxRRT extends MoveableBoxRRT {
 
         return moveMoveableObstacles(previousRobotPosition);
     }
+
+    /**
+     * Get the goal box (final position)
+     *
+     * @return the goal box
+     */
+    public MoveableBox getGoalBox() {
+        return goalBox;
+    }
 }
