@@ -1,5 +1,9 @@
 package tester;
+import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import problem.*;
+import solution.MoveableBox;
+import solution.Robot;
+
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -166,9 +170,11 @@ public class Tester {
 
     public boolean isValidStep(RobotConfig r1, RobotConfig r2) {
         if (getPoint1(r1).distance(getPoint1(r2)) > MAX_BASE_STEP + MAX_ERROR) {
+            System.out.println(getPoint1(r1).distance(getPoint1(r2)));
             return false;
         }
         if (getPoint2(r1).distance(getPoint2(r2)) > MAX_BASE_STEP + MAX_ERROR) {
+            System.out.println(getPoint2(r1).distance(getPoint2(r2)));
             return false;
         }
         return true;
@@ -250,6 +256,7 @@ public class Tester {
      */
     public boolean testPushValidity(int direction, RobotConfig oldRobot, RobotConfig newRobot, Box oldBox, Box newBox) {
         if (direction == -1) {
+            System.out.println("Direction -1");
             return false;
         }
 
@@ -259,6 +266,9 @@ public class Tester {
         double boxdx = newBox.getPos().getX() - oldBox.getPos().getX();
 
         if (Math.abs(robotdy - boxdy) > MAX_ERROR || Math.abs(robotdx - boxdx) > MAX_ERROR) {
+            System.out.println("Robot moving at different speed to box");
+            System.out.println("RobotSpeed: " + robotdx + "," + robotdy);
+            System.out.println("BoxSpeed: " + boxdx + "," + boxdy);
             return false;
         }
         int actualDirection = 0;
@@ -279,10 +289,14 @@ public class Tester {
         }
 
         if (moved > 1) {
+            System.out.println("Moving in more than one direction");
             return false;
         }
 
         if (actualDirection != 0 && actualDirection != direction) {
+            System.out.println("Actual direction different to direction");
+            System.out.println("ActualDirection: " + actualDirection);
+            System.out.println("Direction: " + direction);
             return false;
         }
         return true;
@@ -371,11 +385,15 @@ public class Tester {
             p1 = getPoint2(r);
             horizontal = false;
         } else {
+            System.out.println("angle wrong: " + angle);
             return -1;
         }
 
         Rectangle2D collisionBox = grow(b.getRect(),MAX_ERROR);
         if ((!collisionBox.intersectsLine(new Line2D.Double(p1,p2)))) {
+            System.out.println("Not connected");
+            System.out.println(b.getRect());
+            System.out.println(p1 + " " + p2);
             return -1;
         }
 
@@ -391,6 +409,7 @@ public class Tester {
             } else {return 4;}
         }
 
+        System.out.println("No idea");
         return -1;
     }
 
@@ -416,6 +435,13 @@ public class Tester {
             RobotConfig robot = ps.getRobotPath().get(i);
             if (!hasCollision(robot, movingObjects)) {
                 System.out.println("Collision at step " + i);
+                Robot robot1 = new Robot(robot.getPos(), robot.getOrientation(), ps.getRobotWidth());
+                ArrayList<solution.Box> obstacles= new ArrayList<>();
+                for(Box box: movingObjects) {
+                    solution.Box obstacle = new solution.Box(box.getRect());
+                    obstacles.add(obstacle);
+                }
+                System.out.println(robot1.isValid(obstacles));
                 pass = false;
             }
             if (!testGapSliding(robot, movingObjects)) {
@@ -505,33 +531,39 @@ public class Tester {
         Rectangle2D border = new Rectangle2D.Double(0,0,1,1);
         for (StaticObstacle o: ps.getStaticObstacles()) {
             if (robotLine.intersects(grow(o.getRect(), -MAX_ERROR))) {
+                System.out.println("Static obstacle collision");
                 return false;
             }
         }
 
         if (!border.contains(robotLine.getP1()) || !border.contains(robotLine.getP2())) {
+            System.out.println("Robot outside of border");
             return false;
         }
 
         for (Box b1: movingObjects) {
 
             if (!border.contains(b1.getRect())) {
+                System.out.println("Box outside of border");
                 return false;
             }
 
             Rectangle2D collisionBox = grow(b1.getRect(),-MAX_ERROR);
             if (collisionBox.intersectsLine(robotLine)) {
-                    return false;
+                System.out.println("Moving obstacle collision");
+                return false;
             }
 
             for (Box b2: movingObjects) {
                 if ((!b1.equals(b2)) && (collisionBox.intersects(b2.getRect()))) {
+                    System.out.println("Moving obstacles collided");
                     return false;
                 }
             }
 
             for (StaticObstacle o: ps.getStaticObstacles()) {
                 if (collisionBox.intersects(o.getRect()) || robotLine.intersects(o.getRect())) {
+                    System.out.println("Static obstacle collided with moving obstacle");
                     return false;
                 }
             }

@@ -183,11 +183,9 @@ public class Robot {
      * @return the maximum distance
      */
     public double distanceToOtherRobot(Robot other) {
-        return sqrt(min(
+        return sqrt(
                 max(pow(other.getX1() - getX1(), 2) + pow(other.getY1() - getY1(), 2),
-                pow(other.getX2() - getX2(), 2) + pow(other.getY2() - getY2(), 2)),
-                max(pow(other.getX1() - getX2(), 2) + pow(other.getY1() - getY2(), 2),
-                pow(other.getX2() - getX1(), 2) + pow(other.getY2() - getY1(), 2))));
+                pow(other.getX2() - getX2(), 2) + pow(other.getY2() - getY2(), 2)));
     }
 
     /**
@@ -235,38 +233,5 @@ public class Robot {
      */
     public Line2D getLine() {
         return new Line2D.Double(getP1(), getP2());
-    }
-
-    /**
-     * Get a bounding circle
-     *
-     * @return a bounding circle
-     */
-    public Ellipse2D getCircleBounds() {
-        return new Ellipse2D.Double(getX(), getY(), width, width);
-    }
-
-    /**
-     * Get an area bounding the rotation
-     *
-     * @param newTheta the new angle
-     *
-     * @return the rotation bounding area
-     */
-    public Area getRotationBounds(double newTheta) {
-        Arc2D arc1 = new Arc2D.Double(
-                getCircleBounds().getBounds2D(),
-                toDegrees(theta), toDegrees(newTheta - theta), Arc2D.PIE
-        );
-
-        Arc2D arc2 = new Arc2D.Double(
-                getCircleBounds().getBounds2D(),
-                toDegrees(theta + PI), toDegrees(newTheta - theta), Arc2D.PIE
-        );
-
-        Area area = new Area(arc1);
-        area.add(new Area(arc2));
-
-        return area;
     }
 }

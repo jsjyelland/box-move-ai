@@ -36,7 +36,7 @@ public class Outputter {
         this.initialGoalBoxes = initialGoalBoxes;
     }
 
-    public void writeSolution(String filename) throws IOException {
+    public void writeSolution(String filename) throws IOException, BoxLostException {
         // Ensure the file exists
         File file = new File(filename);
         if (!file.exists()) {
@@ -55,12 +55,17 @@ public class Outputter {
         ArrayList<MoveableBox> allBoxes = new ArrayList<>(initialGoalBoxes);
         allBoxes.addAll(initialMoveableObstacles);
 
+        ArrayList<MoveableBox>allBoxesInitialDeepClone = new ArrayList<>();
+        for (MoveableBox box: allBoxes) {
+            allBoxesInitialDeepClone.add(box.clone());
+        }
+
         ArrayList<ArrayList<MoveableBox>> allBoxesList = new ArrayList<>();
 
 
         for (RobotAction action : robotPath) {
             double actionSize = action.getInitialRobot().distanceToOtherRobot(action.getFinalRobot());
-            double numSteps = ceil(actionSize / 0.001);
+            double numSteps = ceil(actionSize / 0.1);
 
             // Step along the line, adding a robot action to robotPathPrimitive each time
             for (double i = 0; i < numSteps; i++) {
@@ -74,6 +79,9 @@ public class Outputter {
                 // Create the new action object
                 RobotAction newAction = new RobotAction(newInitialRobot, newFinalRobot);
 
+                // Append it to the ArrayList
+                robotPathPrimitive.add(newAction);
+
                 // Clone allBoxes
                 ArrayList<MoveableBox> allBoxesDeepClone = new ArrayList<>();
                 for (MoveableBox box: allBoxes) {
@@ -86,16 +94,14 @@ public class Outputter {
                             action.getBoxPushing());
                     try {
                         MoveableBox boxPushed = allBoxesDeepClone.get(boxPushedIndex);
-                        boxPushed.move(i / numSteps * action.getDx(), i / numSteps * action.getDy());
+                        boxPushed.move((i + 1) / numSteps * action.getDx(), (i + 1) / numSteps * action.getDy());
                     } catch (IndexOutOfBoundsException e) {
                         System.out.println(allBoxes);
                         System.out.println(action.getBoxPushing());
+                        throw new BoxLostException(); // This is pretty ridiculous but whatever
                     }
                 }
                 allBoxesList.add(allBoxesDeepClone);
-
-                // Append it to the ArrayList
-                robotPathPrimitive.add(newAction);
             }
             if (action.getBoxPushing() != null) {
                 int boxPushedIndex = allBoxes.indexOf(
@@ -106,6 +112,7 @@ public class Outputter {
                 } catch (IndexOutOfBoundsException e) {
                     System.out.println(allBoxes);
                     System.out.println(action.getBoxPushing());
+                    throw new BoxLostException(); // This is pretty ridiculous but whatever
                 }
             }
 
@@ -118,7 +125,7 @@ public class Outputter {
         // Second line: initial configuration
         RobotAction initialAction = robotPathPrimitive.get(0);
         bw.write(initialAction.getInitialRobot().getX() + " " + initialAction.getInitialRobot().getY() + " " + initialAction.getInitialRobot().getTheta());
-        for (MoveableBox box : allBoxes) {
+        for (MoveableBox box : allBoxesInitialDeepClone) {
             bw.write(" " + box.getRect().getCenterX() + " " + box.getRect().getCenterY());
         }
         bw.newLine();

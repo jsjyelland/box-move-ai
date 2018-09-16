@@ -95,4 +95,41 @@ public class MoveableObstacleRRT extends MoveableBoxRRT {
     protected void finishPushBoxInWorkspace(MoveableBox newPosition) {
         Workspace.getInstance().finishPush(newPosition);
     }
+
+    /**
+     * Perform any actions after finding a solution to the RRT
+     *
+     * @return whether this was successful or not
+     */
+    @Override
+    public boolean finishSolution() {
+        try {
+            // Save the workspace
+            Workspace.save();
+
+            // Add in all the paths required to move moveable obstacles at the beginning
+            ArrayList<RobotAction> robotPaths = moveMoveableObstacles(robotStartingPosition);
+
+            // Compute a path for the robot to move
+            robotPaths.addAll(solveRobotPath(
+                    robotPaths.size() > 0 ?
+                            robotPaths.get(robotPaths.size() - 1).getFinalRobot() :
+                            robotStartingPosition
+            ));
+
+            robotPath = robotPaths;
+
+            RobotActionVisualiser visualiser = new RobotActionVisualiser(robotPath);
+            Window window = new Window(visualiser);
+
+            // This solution was valid. Update the workspace
+            Workspace.overwriteLastAndRemove();
+
+            return true;
+        } catch (NoPathException e) {
+            // Robot can't do it, no solution
+            Workspace.undo();
+            return false;
+        }
+    }
 }

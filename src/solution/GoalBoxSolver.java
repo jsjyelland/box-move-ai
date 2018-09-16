@@ -5,19 +5,30 @@ import problem.ProblemSpec;
 import problem.RobotConfig;
 import problem.StaticObstacle;
 
+import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.util.ArrayList;
 
 public class GoalBoxSolver {
     /**
+     * The start positions of the goal boxes
+     */
+    private ArrayList<MoveableBox> goalBoxes;
+
+    /**
      * The final positions of the goal boxes
      */
-    ArrayList<MoveableBox> goalBoxGoalPositions;
+    private ArrayList<MoveableBox> goalBoxGoalPositions;
+
+    /**
+     * The start positions of the moveable obstacles
+     */
+    private ArrayList<MoveableBox> moveableObstacles;
 
     /**
      * The starting position of the robot
      */
-    Robot robotStartingPosition;
+    private Robot robotStartingPosition;
 
     /**
      * Construct a goal box solver with a problem file
@@ -32,21 +43,21 @@ public class GoalBoxSolver {
         ps.loadProblem(filename);
 
         // Load the goal boxes
-        ArrayList<MoveableBox> goalBoxes = new ArrayList<>();
+        goalBoxes = new ArrayList<>();
 
         for (Box box : ps.getMovingBoxes()) {
             goalBoxes.add(new MoveableBox(box.getRect()));
         }
 
         // Load the goal box goal positions
-        for (int i = 0; i < ps.getMovingBoxEndPositions().size(); i++) {
-            goalBoxGoalPositions.add(new MoveableBox(
-                    ps.getMovingBoxEndPositions().get(i),
-                    goalBoxes.get(i).getRect().getWidth()));
+        goalBoxGoalPositions = new ArrayList<>();
+
+        for (Point2D point : ps.getMovingBoxEndPositions()) {
+            goalBoxGoalPositions.add(new MoveableBox(point, ps.getRobotWidth()));
         }
 
         // Load the moveable obstacles
-        ArrayList<MoveableBox> moveableObstacles = new ArrayList<>();
+        moveableObstacles = new ArrayList<>();
 
         for (Box box : ps.getMovingObstacles()) {
             moveableObstacles.add(new MoveableBox(box.getRect()));
@@ -78,15 +89,64 @@ public class GoalBoxSolver {
      *
      * @return the robot path
      */
-    public ArrayList<RobotAction> solve() {
+    public ArrayList<RobotAction> solve() throws NoPathException {
+        ArrayList<TreeNode<MoveableBoxState, MoveableBoxAction>> rrtSolutions = new ArrayList<>();
+        ArrayList<GoalBoxRRT> rrtList = new ArrayList<>();
+
         for (int i = 0; i < Workspace.getInstance().getGoalBoxes().size(); i++) {
             GoalBoxRRT rrt = new GoalBoxRRT(Workspace.getInstance().getGoalBoxes().get(i),
-                    goalBoxGoalPositions.get(i), robotStartingPosition
+                    goalBoxGoalPositions.get(i)
             );
 
-            rrt.solve();
+            rrtList.add(rrt);
+
+            if (rrt.solve()) {
+                rrtSolutions.add(rrt.getSolution());
+            } else {
+                throw new NoPathException();
+            }
         }
 
-        return new ArrayList<>();
+        // TODO order the list of rrts based on which ones need to be solved first
+
+        Robot previousRobotPosition = robotStartingPosition;
+
+        ArrayList<RobotAction> robotPath = new ArrayList<>();
+
+        for (GoalBoxRRT rrt : rrtList) {
+            robotPath.addAll(rrt.solveMoveableObstacles(rrtSolutions, previousRobotPosition));
+
+            if (robotPath.size() > 0) {
+                previousRobotPosition = robotPath.get(robotPath.size() - 1).getFinalRobot();
+            }
+        }
+
+        for (GoalBoxRRT rrt : rrtList) {
+            robotPath.addAll(rrt.solveRobotPath(previousRobotPosition));
+
+            if (robotPath.size() > 0) {
+                previousRobotPosition = robotPath.get(robotPath.size() - 1).getFinalRobot();
+            }
+        }
+
+        return robotPath;
+    }
+
+    /**
+     * Get the moveable obstacle start positions
+     *
+     * @return the moveable obstacle start positions
+     */
+    public ArrayList<MoveableBox> getMoveableObstacles() {
+        return moveableObstacles;
+    }
+
+    /**
+     * Get the goal box start positions
+     *
+     * @return the goal box start positions
+     */
+    public ArrayList<MoveableBox> getGoalBoxes() {
+        return goalBoxes;
     }
 }

@@ -21,7 +21,7 @@ public abstract class MoveableBoxRRT extends RRT<MoveableBoxState, MoveableBoxAc
     /**
      * The robot's starting position
      */
-    Robot robotStartingPosition;
+    protected Robot robotStartingPosition;
 
     /**
      * Construct a MoveableBoxRRT
@@ -49,43 +49,15 @@ public abstract class MoveableBoxRRT extends RRT<MoveableBoxState, MoveableBoxAc
      */
     @Override
     protected boolean checkSolution(TreeNode<MoveableBoxState, MoveableBoxAction> newestNode) {
-        if (checkMoveableBoxPath(newestNode)) {
-            try {
-                // Save the workspace
-                Workspace.save();
-
-                // Add in all the paths required to move moveable obstacles at the beginning
-                ArrayList<RobotAction> robotPaths = moveMoveableObstacles();
-
-                pushBoxInWorkspace(initialBox);
-
-                // Compute a path for the robot to move
-                robotPaths.addAll(solveRobotPath(
-                        robotPaths.size() > 0 ?
-                                robotPaths.get(robotPaths.size() - 1).getFinalRobot() :
-                                robotStartingPosition
-                ));
-
-                robotPath = robotPaths;
-
-                finishPushBoxInWorkspace(solutionNode.getState().getMainBox());
-
-                RobotActionVisualiser visualiser = new RobotActionVisualiser(robotPath);
-                Window window = new Window(visualiser);
-
-                // This solution was valid. Update the workspace
-                Workspace.overwriteLastAndRemove();
-
-                return true;
-            } catch (NoPathException e) {
-                // Robot can't do it, no solution
-                Workspace.undo();
-                return false;
-            }
-        } else {
-            return false;
-        }
+        return checkMoveableBoxPath(newestNode) && finishSolution();
     }
+
+    /**
+     * Perform any actions after finding a solution to the RRT
+     *
+     * @return whether this was successful or not
+     */
+    protected abstract boolean finishSolution();
 
     /**
      * Check if the path for a moveable box is valid
@@ -194,10 +166,13 @@ public abstract class MoveableBoxRRT extends RRT<MoveableBoxState, MoveableBoxAc
     /**
      * Move moveable obstacles out of the way of the solution path
      *
+     * @param previousRobotPosition the starting position of the robot
+     *
      * @return a list of the robot actions required to move the obstacles. Returns null if no
      * solution has been found
      */
-    private ArrayList<RobotAction> moveMoveableObstacles() throws NoPathException {
+    protected ArrayList<RobotAction> moveMoveableObstacles(Robot previousRobotPosition)
+            throws NoPathException {
         // Make sure a solution has been found
         if (solutionNode == null) {
             return new ArrayList<>();
@@ -207,8 +182,6 @@ public abstract class MoveableBoxRRT extends RRT<MoveableBoxState, MoveableBoxAc
         TreeNode<MoveableBoxState, MoveableBoxAction> currentNode = solutionNode;
 
         ArrayList<RobotAction> robotPaths = new ArrayList<>();
-
-        Robot previousRobotPosition = robotStartingPosition;
 
         while (currentNode.getParent() != null) {
             // Move the moveable obstacles out of the way, and attach a visualiser if this RRT
@@ -262,8 +235,10 @@ public abstract class MoveableBoxRRT extends RRT<MoveableBoxState, MoveableBoxAc
      *
      * @throws NoPathException if a path could not be computed
      */
-    protected ArrayList<RobotAction> solveRobotPath(Robot previousRobotPosition)
+    public ArrayList<RobotAction> solveRobotPath(Robot previousRobotPosition)
             throws NoPathException {
+        pushBoxInWorkspace(initialBox);
+
         ArrayList<RobotAction> robotPaths = new ArrayList<>();
 
         // Compute all the paths for each action
@@ -277,6 +252,8 @@ public abstract class MoveableBoxRRT extends RRT<MoveableBoxState, MoveableBoxAc
             previousRobotPosition = robotPaths.get(robotPaths.size() - 1).getFinalRobot();
         }
 
+        finishPushBoxInWorkspace(solutionNode.getState().getMainBox());
+
         return robotPaths;
     }
 
@@ -288,7 +265,6 @@ public abstract class MoveableBoxRRT extends RRT<MoveableBoxState, MoveableBoxAc
     public ArrayList<RobotAction> getRobotPath() {
         return robotPath;
     }
-
 
     /**
      * Push the box in the workspace

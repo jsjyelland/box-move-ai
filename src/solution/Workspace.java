@@ -114,7 +114,7 @@ public class Workspace {
      * @param goalBoxes the goal boxes
      */
     public void setGoalBoxes(ArrayList<MoveableBox> goalBoxes) {
-        this.goalBoxes = goalBoxes;
+        this.goalBoxes = new ArrayList<>(goalBoxes);
     }
 
     /**
@@ -123,7 +123,7 @@ public class Workspace {
      * @param moveableObstacles the moveable obstacles
      */
     public void setMoveableObstacles(ArrayList<MoveableBox> moveableObstacles) {
-        this.moveableObstacles = moveableObstacles;
+        this.moveableObstacles = new ArrayList<>(moveableObstacles);
     }
 
     /**
@@ -132,7 +132,7 @@ public class Workspace {
      * @param staticObstacles the static obstacles
      */
     public void setStaticObstacles(ArrayList<Box> staticObstacles) {
-        this.staticObstacles = staticObstacles;
+        this.staticObstacles = new ArrayList<>(staticObstacles);
     }
 
     /**

@@ -1,7 +1,6 @@
 package solution;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * An RRT for moving a goal box
@@ -13,14 +12,18 @@ public class GoalBoxRRT extends MoveableBoxRRT {
     private MoveableBox goalBox;
 
     /**
+     * The solutions of all the goal box RRTs
+     */
+    private ArrayList<TreeNode<MoveableBoxState, MoveableBoxAction>> allSolutions;
+
+    /**
      * Construct a GoalBoxRRT
      *
      * @param initialBox the initial box
      * @param goalBox the goal box
-     * @param robotStartingPosition the starting position of the robot
      */
-    public GoalBoxRRT(MoveableBox initialBox, MoveableBox goalBox, Robot robotStartingPosition) {
-        super(initialBox, robotStartingPosition);
+    public GoalBoxRRT(MoveableBox initialBox, MoveableBox goalBox) {
+        super(initialBox, null);
         this.goalBox = goalBox;
     }
 
@@ -46,14 +49,13 @@ public class GoalBoxRRT extends MoveableBoxRRT {
     }
 
     /**
-     * Get the leaves of the solution trees. This is the top level, so the leaves list contains
-     * only one element, solutionNode.
+     * Get the leaves of the solution trees. This is all the goal box rrt solutions.
      *
      * @return the leaves of the solution trees
      */
     @Override
     protected ArrayList<TreeNode<MoveableBoxState, MoveableBoxAction>> getSolutionLeaves() {
-        return new ArrayList<>(Arrays.asList(solutionNode));
+        return new ArrayList<>(allSolutions);
     }
 
     /**
@@ -74,5 +76,35 @@ public class GoalBoxRRT extends MoveableBoxRRT {
     @Override
     protected void finishPushBoxInWorkspace(MoveableBox newPosition) {
         Workspace.getInstance().finishPushGoalBox(newPosition);
+    }
+
+    /**
+     * Perform any actions after finding a solution to the RRT
+     *
+     * @return whether this was successful or not
+     */
+    @Override
+    protected boolean finishSolution() {
+        // Nothing to do here
+        return true;
+    }
+
+    /**
+     * Solve a path for the robot to move moveable obstacles given all the rrt solutions.
+     *
+     * @param allSolutions all the rrt solutions
+     * @param previousRobotPosition the robot starting position
+     *
+     * @return the robot path
+     *
+     * @throws NoPathException if no path could be found
+     */
+    public ArrayList<RobotAction> solveMoveableObstacles(
+            ArrayList<TreeNode<MoveableBoxState, MoveableBoxAction>> allSolutions,
+            Robot previousRobotPosition)
+            throws NoPathException {
+        this.allSolutions = allSolutions;
+
+        return moveMoveableObstacles(previousRobotPosition);
     }
 }

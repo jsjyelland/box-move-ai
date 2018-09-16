@@ -33,8 +33,7 @@ public class MoveableBoxRRTTester {
 
         GoalBoxRRT rrt = new GoalBoxRRT(
                 new MoveableBox(0.9, 0.125, 0.05),
-                new MoveableBox(0.0, 0.9, 0.05),
-                new Robot(0.8, 0.2, 0, Workspace.getInstance().getRobotWidth())
+                new MoveableBox(0.0, 0.9, 0.05)
         );
 
         // Create the visualizer
@@ -54,6 +53,15 @@ public class MoveableBoxRRTTester {
             outputter.writeSolution("test.txt");
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (BoxLostException e) {
+            e.printStackTrace();
+            try {
+                outputter.writeSolution("test.txt");
+            } catch (IOException e2) {
+                e2.printStackTrace();
+            } catch (BoxLostException e2) {
+                e2.printStackTrace();
+            }
         }
 
         RobotActionVisualiser visualiser1 = new RobotActionVisualiser(actionPath);
