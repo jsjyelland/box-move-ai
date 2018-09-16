@@ -1,5 +1,7 @@
 package solution;
 
+import java.util.ArrayList;
+
 import static java.lang.Math.PI;
 import static java.lang.Math.random;
 import static solution.Utility.angleBetween;
@@ -102,7 +104,7 @@ public class RobotRRT extends RRT<RobotState, RobotAction> {
             // Check if the action is valid. Will throw an
             // InvalidStateException if not.
             TreeNode<RobotState, RobotAction> newNode = node.getState().action(dx, dy, dtheta,
-                    boxToPush
+                    boxToPush, getObstacles()
             );
 
             // Add the new node to the tree
@@ -150,6 +152,16 @@ public class RobotRRT extends RRT<RobotState, RobotAction> {
      */
     @Override
     protected void validateState(RobotState state) throws InvalidStateException {
-        state.validate(boxToPush);
+        state.validate(getObstacles(), boxToPush);
+    }
+
+    /**
+     * Get the obstacles to avoid
+     *
+     * @return the obstacles to avoid
+     */
+    @Override
+    public ArrayList<Box> getObstacles() {
+        return Workspace.getInstance().getAllObstacles();
     }
 }

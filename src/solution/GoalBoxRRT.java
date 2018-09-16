@@ -116,4 +116,14 @@ public class GoalBoxRRT extends MoveableBoxRRT {
     public MoveableBox getGoalBox() {
         return goalBox;
     }
+
+    /**
+     * Get the obstacles to avoid
+     *
+     * @return the obstacles to avoid
+     */
+    @Override
+    public ArrayList<Box> getObstacles() {
+        return Workspace.getInstance().getStaticObstacles();
+    }
 }

@@ -1,20 +1,24 @@
 package solution;
 
+import java.util.ArrayList;
+
 public abstract class State {
     /**
      * Check if the state is valid.
      *
+     * @param obstacles the obstacles to avoid
+     *
      * @return whether the state is valid or not
      */
-    public abstract boolean isValid();
+    public abstract boolean isValid(ArrayList<Box> obstacles);
 
     /**
      * Validate the state
      *
      * @throws InvalidStateException if the state is invalid
      */
-    public void validate() throws InvalidStateException {
-        if (!isValid()) {
+    public void validate(ArrayList<Box> obstacles) throws InvalidStateException {
+        if (!isValid(obstacles)) {
             throw new InvalidStateException();
         }
     }

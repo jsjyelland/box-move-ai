@@ -144,6 +144,14 @@ public class Workspace {
         return new ArrayList<>(staticObstacles);
     }
 
+    public ArrayList<Box> getStaticObstaclesAndGoalBoxes() {
+        ArrayList<Box> obstacleList = new ArrayList<>();
+        obstacleList.addAll(staticObstacles);
+        obstacleList.addAll(goalBoxes);
+
+        return obstacleList;
+    }
+
     /**
      * Get all the boxes in the workspace
      *

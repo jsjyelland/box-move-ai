@@ -101,7 +101,7 @@ public abstract class MoveableBoxRRT extends RRT<MoveableBoxState, MoveableBoxAc
                 // Check if the action is valid. Will throw an
                 // InvalidStateException if not.
                 TreeNode<MoveableBoxState, MoveableBoxAction> newNode = node.getState().action(
-                        dx, dy
+                        dx, dy, getObstacles()
                 );
 
                 // Add the new node to the tree
@@ -292,7 +292,7 @@ public abstract class MoveableBoxRRT extends RRT<MoveableBoxState, MoveableBoxAc
      */
     @Override
     protected void validateState(MoveableBoxState state) throws InvalidStateException {
-        state.validate();
+        state.validate(getObstacles());
     }
 
     /**

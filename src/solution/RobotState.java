@@ -32,13 +32,14 @@ public class RobotState extends State {
      * @param dy y distance to move robot by
      * @param boxToPush the box the robot is pushing
      * @param dtheta change in theta
+     * @param obstacles the obstacles to avoid
      *
      * @return a new node containing the new state and the action to get to this state
      *
      * @throws InvalidStateException if the new state is invalid
      */
     public TreeNode<RobotState, RobotAction> action(double dx, double dy, double dtheta,
-            Box boxToPush) throws InvalidStateException {
+            Box boxToPush, ArrayList<Box> obstacles) throws InvalidStateException {
         RobotState newState = clone();
 
         double distance = distanceDelta(dx, dy, dtheta);
@@ -52,11 +53,9 @@ public class RobotState extends State {
 
             // Check if this configuration is valid
             if (i == 1 || i == numSteps) {
-                if (!newState.isValid()) {
-                    throw new InvalidStateException();
-                }
-            } else if (!newState.isValid(boxToPush)) {
-                throw new InvalidStateException();
+                newState.validate(obstacles);
+            } else {
+                newState.validate(obstacles, boxToPush);
             }
         }
 
@@ -68,12 +67,14 @@ public class RobotState extends State {
      * Check if the state is valid. The state is valid if the robot doesn't collide with any of the
      * static obstacles and is inside the workspace.
      *
+     * @param obstacles the obstacles to avoid
+     *
      * @return whether the state is valid or not
      */
     @Override
-    public boolean isValid() {
+    public boolean isValid(ArrayList<Box> obstacles) {
         // Check if the robot is valid
-        return robot.isValid(Workspace.getInstance().getAllObstacles());
+        return robot.isValid(obstacles);
     }
 
     /**
@@ -199,23 +200,25 @@ public class RobotState extends State {
     /**
      * Whether the state is valid or not given a box to push
      *
+     * @param obstacles the obstacles to avoid
      * @param boxPushing the box to push
      *
      * @return whether the state is valid or not
      */
-    public boolean isValid(Box boxPushing) {
-        return isValid() && robot.isValid(new ArrayList<>(Arrays.asList(boxPushing)));
+    public boolean isValid(ArrayList<Box> obstacles, Box boxPushing) {
+        return isValid(obstacles) && robot.isValid(new ArrayList<>(Arrays.asList(boxPushing)));
     }
 
     /**
      * Validates the state given a box to push
      *
+     * @param obstacles the obstacles to avoid
      * @param boxPushing the box to push
      *
      * @throws InvalidStateException if the state is invalid
      */
-    public void validate(Box boxPushing) throws InvalidStateException {
-        if (!isValid(boxPushing)) {
+    public void validate(ArrayList<Box> obstacles, Box boxPushing) throws InvalidStateException {
+        if (!isValid(obstacles, boxPushing)) {
             throw new InvalidStateException();
         }
     }

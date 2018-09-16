@@ -181,15 +181,6 @@ public abstract class RRT<T extends State, U> {
     }
 
     /**
-     * Gets the tree
-     *
-     * @return the tree
-     */
-    public TreeNode<T, U> getTree() {
-        return tree;
-    }
-
-    /**
      * Generate a new random state
      *
      * @return the new state
@@ -213,4 +204,11 @@ public abstract class RRT<T extends State, U> {
      * @throws InvalidStateException if the state is invalid
      */
     protected abstract void validateState(T state) throws InvalidStateException;
+
+    /**
+     * Get the obstacles to avoid
+     *
+     * @return the obstacles to avoid
+     */
+    public abstract ArrayList<Box> getObstacles();
 }

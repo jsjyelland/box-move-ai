@@ -1,7 +1,5 @@
 package solution;
 
-import com.sun.corba.se.spi.orbutil.threadpool.Work;
-
 import java.util.ArrayList;
 
 import static java.lang.Math.atan2;
@@ -33,14 +31,15 @@ public class MoveableBoxState extends State {
      *
      * @param dx x distance to move mainBox by
      * @param dy y distance to move mainBox by
+     * @param obstacles the obstacles to avoid
      *
      * @return a new node containing the new state and the action to get to this state
      *
      * @throws InvalidStateException if the new state is invalid, or if the move is in two
      * directions.
      */
-    public TreeNode<MoveableBoxState, MoveableBoxAction> action(double dx, double dy)
-            throws InvalidStateException {
+    public TreeNode<MoveableBoxState, MoveableBoxAction> action(double dx, double dy,
+            ArrayList<Box> obstacles) throws InvalidStateException {
         // Make sure the action is only in one direction
         if (dx != 0 && dy != 0) {
             throw new InvalidStateException();
@@ -56,7 +55,7 @@ public class MoveableBoxState extends State {
         Box union = mainBox.union(newState.mainBox);
 
         // Check if this union is valid
-        if (!union.isValid(Workspace.getInstance().getStaticObstacles())) {
+        if (!union.isValid(obstacles)) {
             throw new InvalidStateException();
         }
 
@@ -70,12 +69,14 @@ public class MoveableBoxState extends State {
      * Check if the state is valid. The state is valid if the moveable box doesn't collide with any
      * of the static obstacles and is inside the workspace.
      *
+     * @param obstacles the obstacles to avoid
+     *
      * @return whether the state is valid or not
      */
     @Override
-    public boolean isValid() {
+    public boolean isValid(ArrayList<Box> obstacles) {
         // Check if the mainBox is valid
-        return mainBox.isValid(Workspace.getInstance().getStaticObstacles());
+        return mainBox.isValid(obstacles);
     }
 
     /**
