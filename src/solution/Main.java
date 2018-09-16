@@ -41,7 +41,17 @@ public class Main {
                         solver.getGoalBoxes()
                 );
 
-                outputter.writeSolution(args[1]);
+                try {
+                    outputter.writeSolution(args[1]);
+                } catch (BoxLostException e) {
+                    // Try 1 more time
+                    try {
+                        outputter.writeSolution(args[1]);
+                    } catch (BoxLostException e2) {
+                        // Give up
+                        throw new BoxLostException();
+                    }
+                }
 
                 System.out.println("Solution found");
 
