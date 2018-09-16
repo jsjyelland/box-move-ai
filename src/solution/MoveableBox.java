@@ -1,6 +1,5 @@
 package solution;
 
-import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
@@ -24,21 +23,24 @@ public class MoveableBox extends Box {
      * Construct a moveable box with a rectangle object
      *
      * @param rect the rectangle to use for the box.
-     *
-     * @throws BoxSizeException if the rectangle is not a square (height == width)
      */
-    public MoveableBox(Rectangle2D rect) throws BoxSizeException {
+    public MoveableBox(Rectangle2D rect) {
         super(rect);
+    }
 
-        // Make sure the rect is a square
-        if (rect.getWidth() != rect.getHeight()) {
-            throw new BoxSizeException();
-        }
+    /**
+     * Construct a moveable box with a position and width
+     *
+     * @param pos the position
+     * @param w the width
+     */
+    public MoveableBox(Point2D pos, double w) {
+        super(pos, w, w);
     }
 
     /**
      * Move the box
-     *
+     *ArrayList<MoveableBox> moveableBoxGoalPositions
      * @param dx change in x
      * @param dy change in y
      */
@@ -53,12 +55,6 @@ public class MoveableBox extends Box {
      */
     @Override
     public MoveableBox clone() {
-        try {
-            return new MoveableBox((Rectangle2D.Double) rect.clone());
-        } catch (BoxSizeException e) {
-            // This will not happen because the rect will be a square.
-            // If this object is valid, so will the clone
-            return new MoveableBox(0, 0, 0);
-        }
+        return new MoveableBox((Rectangle2D.Double) rect.clone());
     }
 }

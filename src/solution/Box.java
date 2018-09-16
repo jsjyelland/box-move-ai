@@ -1,5 +1,6 @@
 package solution;
 
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 
@@ -33,7 +34,18 @@ public class Box {
      * @param rect the rectangle for the box
      */
     public Box(Rectangle2D rect) {
-        this.rect = (Rectangle2D) rect.clone();
+        this.rect = rect;
+    }
+
+    /**
+     * Construct a box with a position, width and height
+     *
+     * @param pos the position
+     * @param w the width
+     * @param h the height
+     */
+    public Box(Point2D pos, double w, double h) {
+        this(pos.getX(), pos.getY(), w, h);
     }
 
     /**
