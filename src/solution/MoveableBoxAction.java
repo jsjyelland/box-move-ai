@@ -74,9 +74,6 @@ public class MoveableBoxAction {
 
         // Move each box out of the way
         for (MoveableBox box : boxesToMove) {
-            // Mark the obstacle as being moved
-            Workspace.getInstance().markBoxNeedsMoving(box);
-
             // Create an RRT to move the box out of the way
             MoveableObstacleRRT obstacleRRT = new MoveableObstacleRRT(box, previousRobotPosition,
                     solutionNodes

@@ -95,6 +95,9 @@ public class MoveableObstacleRRT extends MoveableBoxRRT {
             // Save the workspace
             Workspace.save();
 
+            // Mark the obstacle as being moved
+            Workspace.getInstance().markBoxNeedsMoving(getInitialBox());
+
             // Add in all the paths required to move moveable obstacles at the beginning
             ArrayList<RobotAction> robotPaths = moveMoveableObstacles(robotStartingPosition);
 
@@ -125,6 +128,6 @@ public class MoveableObstacleRRT extends MoveableBoxRRT {
      */
     @Override
     public ArrayList<Box> getObstacles() {
-        return Workspace.getInstance().getStaticObstaclesAndGoalBoxes();
+        return Workspace.getInstance().getCurrentStillObstacles();
     }
 }

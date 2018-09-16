@@ -261,7 +261,7 @@ public class ProblemTester {
 //        int staticObstacleCount = (int) (random() * 11) + 2; // 2 - 12 staticObstacles
 
         int goalBoxCount = 7;
-        int moveableObstacleCount = 8;
+        int moveableObstacleCount = 5;
         int staticObstacleCount = 10;
 
         ArrayList<Box> allBoxes = new ArrayList<>();

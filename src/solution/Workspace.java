@@ -144,10 +144,16 @@ public class Workspace {
         return new ArrayList<>(staticObstacles);
     }
 
-    public ArrayList<Box> getStaticObstaclesAndGoalBoxes() {
+    /**
+     * Get any obstacles that have not yet been moved or are in their final positions
+     *
+     * @return the obstacles
+     */
+    public ArrayList<Box> getCurrentStillObstacles() {
         ArrayList<Box> obstacleList = new ArrayList<>();
         obstacleList.addAll(staticObstacles);
         obstacleList.addAll(goalBoxes);
+        obstacleList.addAll(boxesNeedingMoving);
 
         return obstacleList;
     }
