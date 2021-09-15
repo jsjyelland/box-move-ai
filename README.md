@@ -2,6 +2,12 @@
 
 This program organises boxes in a virtual environment using pathfinding algorithms to move boxes from a start to a goal position in an environment cluttered with moveable and immoveable obstacles.
 
+<p align="center">
+  <img src="https://i.imgur.com/1FTEKrC.png">
+</p>
+
+The red boxes represent immoveable obstacles, the yellow boxes moveable obstacles, the blue boxes are the ones to be moved and the green boxes are the goals. 
+
 ## Input Format
 The input of the program is a text file containing information on the robot and problem scenario. In particular, the file follows the following format:
 * The first line consists of 4 numbers, where the first number is the value of w, while the subsequent two numbers represent the initial (x, y) position and the last number represents the orientation 𝛼 ∈ [0, 2𝜋]rad.
